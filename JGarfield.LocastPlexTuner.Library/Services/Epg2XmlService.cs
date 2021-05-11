@@ -14,6 +14,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         Task WriteDummyXmlIfNotExists();
 
         Task GenerateEpgFile();
+
+        Task<string> GetEpgFile();
     }
 
     public class Epg2XmlService : IEpg2XmlService
@@ -46,6 +48,15 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             xmlDoc.Save(filename);
 
             await Task.CompletedTask;
+        }
+
+        public async Task<string> GetEpgFile()
+        {
+            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{DMA}_epg.xml");
+            var xmlDoc = new XmlDocument();
+            xmlDoc.Load(filename);
+            
+            return await Task.FromResult(xmlDoc.OuterXml);
         }
 
         public async Task GenerateEpgFile()

@@ -25,6 +25,8 @@ namespace JGarfield.LocastPlexTuner.WebApi
 
         private readonly ITunerService _tunerService;
 
+        private readonly IEpg2XmlService _epg2XmlService;
+
         public LocastHostedService(
             ILogger<LocastHostedService> logger,
             IHostApplicationLifetime appLifetime,
@@ -33,7 +35,8 @@ namespace JGarfield.LocastPlexTuner.WebApi
             IFccService fccService,
             IStationsService stationsService,
             IConfiguration configuration,
-            ITunerService tunerService)
+            ITunerService tunerService,
+            IEpg2XmlService epg2XmlService)
         {
             _logger = logger;
             _initializationService = initializationService;
@@ -42,6 +45,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
             _stationsService = stationsService;
             _configuration = configuration;
             _tunerService = tunerService;
+            _epg2XmlService = epg2XmlService;
 
             //appLifetime.ApplicationStarted.Register(OnStarted);
             //appLifetime.ApplicationStopping.Register(OnStopping);
@@ -80,6 +84,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
             // TODO: Start timer to call RefreshDmaStationsAndChannels again at some point
 
             _logger.LogInformation("Starting First time EPG refresh...");
+            await _epg2XmlService.GenerateEpgFile();
 
             // TODO: Start timer to call EpgProcess again at some point
 

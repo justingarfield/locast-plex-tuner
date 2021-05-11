@@ -32,21 +32,6 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         public async Task<IActionResult> GetRmgIdentification()
         {
             var rmgIdentification = await _tunerService.GetRmgIdentification();
-            /*
-            var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            var serializer = new XmlSerializer(rmgIdentification.GetType());
-            var settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;
-
-            string xml;
-            using (var stream = new StringWriter())
-            using (var writer = XmlWriter.Create(stream, settings))
-            {
-                serializer.Serialize(writer, rmgIdentification, emptyNamespaces);
-                xml = stream.ToString();
-            }
-            */
             return new ContentResult
             {
                 Content = rmgIdentification,
@@ -173,8 +158,13 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> XmlTv()
         {
-            await _epg2XmlService.GenerateEpgFile();
-            return Ok();
+            var content = await _epg2XmlService.GetEpgFile();
+            return new ContentResult
+            {
+                Content = content,
+                ContentType = "application/xml",
+                StatusCode = 200
+            };
         }
 
         [Route("/channels.m3u")]
