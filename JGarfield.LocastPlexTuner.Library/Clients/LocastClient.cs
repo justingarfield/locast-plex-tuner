@@ -72,7 +72,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
 
             if (startTime.HasValue)
             {
-                var isoStartTime = startTime.Value.ToString("o");
+                var isoStartTime = startTime.Value.DateTime.ToString("yyyy-MM-ddTHH:mm:sszzz");
                 return await client.GetFromJsonAsync<List<LocastEpgStationDto>>($"watch/epg/{dma}?startTime={isoStartTime}");
             }
             else

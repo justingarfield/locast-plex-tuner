@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
@@ -19,10 +20,15 @@ namespace JGarfield.LocastPlexTuner.Library.Services
     {
         private const string DMA = "506";
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private const int RELEASE_YEAR_CUTOFF = 1800;
+
         private readonly IStationsService _stationsService;
 
         private readonly ILocastService _locastService;
-
+        
         public Epg2XmlService(IStationsService stationsService, ILocastService locastService)
         {
             _stationsService = stationsService;
@@ -38,6 +44,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
             var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{DMA}_epg.xml");
             xmlDoc.Save(filename);
+
+            await Task.CompletedTask;
         }
 
         public async Task GenerateEpgFile()
@@ -82,7 +90,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                             }
 
                             var channelElement = CreateNewChannelXmlElement(xmlDoc, sid, channelNumber, channelCallSign, channelRealName, channelLogo);
-                            xmlDoc.AppendChild(channelElement);
+                            tvElement.AppendChild(channelElement);
                         }
                     }
 
@@ -110,10 +118,122 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                         }
 
                         foreach (var listing in epgStation.listings) {
+                            var startTime = DateTimeOffset.FromUnixTimeSeconds(listing.startTime / 1000);
+                            int durationInSeconds = listing.duration;
+                            var endTime = startTime.AddSeconds(durationInSeconds);
+                            
+                            var listingGenres = new string[0];
+                            if (!string.IsNullOrWhiteSpace(listing.genres))
+                            {
+                                listingGenres = listing.genres.Split(',');
+                            }
 
+                            var programmeElement = xmlDoc.CreateElement("programme");
+                            programmeElement.SetAttribute("start", startTime.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                            programmeElement.SetAttribute("stop", endTime.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                            programmeElement.SetAttribute("channel", $"{sid}");
+
+                            if (!string.IsNullOrWhiteSpace(listing.title))
+                            {
+                                var titleElement = xmlDoc.CreateElement("title");
+                                titleElement.SetAttribute("lang", "en");
+                                titleElement.InnerText = listing.title;
+                                programmeElement.AppendChild(titleElement);
+                            }
+                            
+                            if (listingGenres.Any(_ => _.Equals("movies", StringComparison.InvariantCultureIgnoreCase)) 
+                                && listing.releaseYear > RELEASE_YEAR_CUTOFF)
+                            {
+                                var subTitleElement = xmlDoc.CreateElement("sub-title");
+                                subTitleElement.SetAttribute("lang", "en");
+                                subTitleElement.InnerText = $"Movie: {listing.releaseYear}";
+                                programmeElement.AppendChild(subTitleElement);
+                            }
+                            else if (!string.IsNullOrWhiteSpace(listing.episodeTitle))
+                            {
+                                var subTitleElement = xmlDoc.CreateElement("sub-title");
+                                subTitleElement.SetAttribute("lang", "en");
+                                subTitleElement.InnerText = $"{listing.episodeTitle}";
+                                programmeElement.AppendChild(subTitleElement);
+                            }
+
+                            if (string.IsNullOrWhiteSpace(listing.description))
+                            {
+                                listing.description = "Unavailable";
+                            }
+
+                            var descElement = xmlDoc.CreateElement("desc");
+                            descElement.SetAttribute("lang", "en");
+                            descElement.InnerText = $"{listing.description}";
+                            programmeElement.AppendChild(descElement);
+
+                            var lengthElement = xmlDoc.CreateElement("length");
+                            lengthElement.SetAttribute("units", "minutes");
+                            lengthElement.InnerText = $"{listing.duration}";
+                            programmeElement.AppendChild(lengthElement);
+
+                            foreach (var genre in listingGenres)
+                            {
+                                var categoryElement = xmlDoc.CreateElement("category");
+                                descElement.SetAttribute("lang", "en");
+                                categoryElement.InnerText = $"{genre.Trim()}";
+                                programmeElement.AppendChild(categoryElement);
+
+                                var genreElement = xmlDoc.CreateElement("genre");
+                                descElement.SetAttribute("lang", "en");
+                                genreElement.InnerText = $"{genre.Trim()}";
+                                programmeElement.AppendChild(genreElement);
+                            }
+                            
+                            if (!string.IsNullOrWhiteSpace(listing.preferredImage))
+                            {
+                                var iconElement = xmlDoc.CreateElement("icon");
+                                iconElement.SetAttribute("src", $"{listing.preferredImage}");
+                                programmeElement.AppendChild(iconElement);
+                            }
+
+                            if (string.IsNullOrWhiteSpace(listing.rating))
+                            {
+                                listing.rating = "N/A";
+                            }
+
+                            var ratingElement = xmlDoc.CreateElement("rating");
+                            var valueElement = xmlDoc.CreateElement("value");
+                            valueElement.InnerText = $"{listing.rating}";
+                            ratingElement.AppendChild(valueElement);
+                            programmeElement.AppendChild(ratingElement);
+
+                            // TODO: Could 'Specials' be 0?
+                            if (listing.seasonNumber > 0 && listing.episodeNumber > 0)
+                            {
+                                var paddedSeasonNumber = listing.seasonNumber.ToString("00");
+                                var paddedEpisodeNumber = listing.seasonNumber.ToString("00");
+
+                                var episodeNumElement = xmlDoc.CreateElement("episode-num");
+                                episodeNumElement.SetAttribute("system", "common");
+                                episodeNumElement.InnerText = $"S{paddedSeasonNumber}E{paddedEpisodeNumber}";
+                                programmeElement.AppendChild(episodeNumElement);
+
+                                episodeNumElement = xmlDoc.CreateElement("episode-num");
+                                episodeNumElement.SetAttribute("system", "xmltv_ns");
+                                episodeNumElement.InnerText = $"{listing.seasonNumber - 1}.{listing.episodeNumber - 1}.0";
+                                programmeElement.AppendChild(episodeNumElement);
+
+                                episodeNumElement = xmlDoc.CreateElement("episode-num");
+                                episodeNumElement.SetAttribute("system", "SxxExx");
+                                episodeNumElement.InnerText = $"S{paddedSeasonNumber}E{paddedEpisodeNumber}";
+                                programmeElement.AppendChild(episodeNumElement);
+                            }
+
+                            if (listing.isNew)
+                            {
+                                var newElement = xmlDoc.CreateElement("new");
+                                programmeElement.AppendChild(newElement);
+                            }
+
+                            tvElement.AppendChild(programmeElement);
                         }
                     }
-
                 }
             }
 
@@ -124,7 +244,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         private async Task<List<LocastEpgStationDto>> GetCached(DateTimeOffset cacheFileDate)
         {
             var dateString = cacheFileDate.ToString("yyyy-mm-dd");
-            var cachePath = Path.Combine(Constants.APPLICATION_CACHE_PATH, "{dateString}.json");
+            var cachePath = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dateString}.json");
             
             if (File.Exists(cachePath))
             {

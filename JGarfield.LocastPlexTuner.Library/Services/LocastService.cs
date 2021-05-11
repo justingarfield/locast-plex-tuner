@@ -25,20 +25,15 @@ namespace JGarfield.LocastPlexTuner.Library.Services
     {
         private readonly ILogger<LocastService> _logger;
 
-        private readonly IConfiguration _configuration;
-
         private readonly ILocastClient _locastClient;
 
         private readonly IIpInfoClient _ipInfoClient;
 
         private DmaLocation _dmaLocation;
 
-        private string _loginToken;
-
-        public LocastService(ILogger<LocastService> logger, IConfiguration configuration, ILocastClient locastClient, IIpInfoClient ipInfoClient)
+        public LocastService(ILogger<LocastService> logger, ILocastClient locastClient, IIpInfoClient ipInfoClient)
         {
             _logger = logger;
-            _configuration = configuration;
             _locastClient = locastClient;
             _ipInfoClient = ipInfoClient;
         }
