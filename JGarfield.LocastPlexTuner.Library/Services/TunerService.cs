@@ -170,8 +170,6 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 return;
             }
 
-            
-
             idleTuner.ScanStatus = domain.TunerScanStatus.Tuned;
             idleTuner.CurrentChannel = dmaStationsAndChannels[stationId].channel;
 
@@ -201,17 +199,12 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                     else
                     {
                         await _httpContextAccessor.HttpContext.Response.Body.WriteAsync(videoData, 0, bytesRead);
-
                         bytesRead = await process.StandardOutput.BaseStream.ReadAsync(videoData);
                     }
                 }
 
             }
-            catch (Win32Exception ex)
-            {
-                _httpContextAccessor.HttpContext.Abort();
-                _logger.LogError(ex.Message);
-            }
+            // TODO: Catch more explicit exceptions here, shouldn't be catching Exception
             catch (Exception ex)
             {
                 _httpContextAccessor.HttpContext.Abort();
@@ -219,16 +212,23 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             }
             finally
             {
+                // Try everything we can to make sure the ffmpeg process wrapper closes down
+                // and releases its resources properly, since transcoding 1080p and/or 4k streams
+                // can use quite a bit of system resources over time.
                 if (process != null) {
                     process.Close();
                     process.Dispose();
                 }
 
+                // Flush any remaining bytes out of the Response Body that may be sitting in 
+                // the underlying buffers. (not 100% sure if this is needed, but just to be safe)
                 await _httpContextAccessor.HttpContext.Response.Body.FlushAsync();
                 
+                // Trying to make really damn sure the Response Stream gets closed.
                 // TODO: Not sure how I feel about calling this directly. Look into this later.
                 _httpContextAccessor.HttpContext.Response.Body.Close();
 
+                // Place the Tuner back into the available pool by marking it as Idle
                 idleTuner.ScanStatus = domain.TunerScanStatus.Idle;
             }
         }
