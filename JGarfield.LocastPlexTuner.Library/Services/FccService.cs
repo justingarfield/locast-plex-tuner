@@ -81,11 +81,14 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private Uri GetLmsFacilityDbUri()
         {
-            var now = DateTimeOffset.UtcNow;
-            var date = now.ToString(Constants.FCC_LMS_FACILITY_DB_DATEFORMAT);
+            // FCC operates with file modified timestamps and maintenance windows based in EST
+            var estTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            var estDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, estTimeZone);
+
+            var fccDateTimeFormat = estDateTime.ToString(Constants.FCC_LMS_FACILITY_DB_DATEFORMAT);
 
             // The FCC LMS Facilities URI conforms to the following pattern: https://enterpriseefiling.fcc.gov/dataentry/api/download/dbfile/05-09-2021/facility.zip
-            var lmsFacilityDbUri = new Uri(Constants.FCC_LMS_BASE_URI, $"download/dbfile/{date}/{Constants.FCC_LMS_FACILITY_DB_FILENAME}");
+            var lmsFacilityDbUri = new Uri(Constants.FCC_LMS_BASE_URI, $"download/dbfile/{fccDateTimeFormat}/{Constants.FCC_LMS_FACILITY_DB_FILENAME}");
 
             return lmsFacilityDbUri;
         }

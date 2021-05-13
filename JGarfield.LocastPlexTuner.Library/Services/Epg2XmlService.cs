@@ -140,8 +140,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                             }
 
                             var programmeElement = xmlDoc.CreateElement("programme");
-                            programmeElement.SetAttribute("start", startTime.ToString("yyyy-MM-ddTHH:mm:sszzz"));
-                            programmeElement.SetAttribute("stop", endTime.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                            programmeElement.SetAttribute("start", startTime.ToString("yyyyMMddHHmmss +0000"));
+                            programmeElement.SetAttribute("stop", endTime.ToString("yyyyMMddHHmmss +0000"));
                             programmeElement.SetAttribute("channel", $"{sid}");
 
                             if (!string.IsNullOrWhiteSpace(listing.title))
@@ -303,6 +303,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         private XmlElement CreateNewChannelXmlElement(XmlDocument xmlDoc, long stationId, decimal channelNumber, string channelCallsign, string channelRealName, string channelLogo)
         {
             XmlElement channelElement = xmlDoc.CreateElement(string.Empty, "channel", string.Empty);
+            channelElement.SetAttribute("id", $"{stationId}");
 
             var displayNameElement = xmlDoc.CreateElement(string.Empty, "display-name", string.Empty);
             displayNameElement.InnerText = $"{channelNumber} {channelCallsign}";

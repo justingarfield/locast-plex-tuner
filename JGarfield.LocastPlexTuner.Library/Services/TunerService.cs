@@ -165,18 +165,21 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
             if (idleTuner == null)
             {
-                // TODO: Need to throw BadRequest here
-                throw new ApplicationException("All tuners already in use.");
+                _httpContextAccessor.HttpContext.Response.StatusCode = 503;
+                await _httpContextAccessor.HttpContext.Response.WriteAsync("All tuners are in use.");
+                return;
             }
+
+            
 
             idleTuner.ScanStatus = domain.TunerScanStatus.Tuned;
             idleTuner.CurrentChannel = dmaStationsAndChannels[stationId].channel;
 
             var ffmpegBinary = @"D:\Utils\ffmpeg-4.4-full_build\bin\ffmpeg.exe";
-
+            
+            Process process = null;
             try
             {
-                Console.WriteLine("\nTrying to launch ffmpeg session...");
                 var processStartInfo = new ProcessStartInfo();
                 processStartInfo.FileName = ffmpegBinary;
                 processStartInfo.Arguments = $"-i {stationStreamUri} -c:v copy -c:a copy -f mpegts -nostats -hide_banner -loglevel warning pipe:1";
@@ -184,32 +187,49 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 processStartInfo.RedirectStandardOutput = true;
                 processStartInfo.UseShellExecute = false;
 
-                var process = Process.Start(processStartInfo);
-                
+                process = Process.Start(processStartInfo);
+
                 byte[] videoData = new byte[1152000];
                 var bytesRead = await process.StandardOutput.BaseStream.ReadAsync(videoData);
 
                 while (true)
                 {
-                    if (bytesRead == 0)
+                    if (bytesRead == 0 || _httpContextAccessor.HttpContext.RequestAborted.IsCancellationRequested)
                     {
                         break;
                     }
                     else
                     {
                         await _httpContextAccessor.HttpContext.Response.Body.WriteAsync(videoData, 0, bytesRead);
-                        
+
                         bytesRead = await process.StandardOutput.BaseStream.ReadAsync(videoData);
                     }
                 }
 
-                process.Close();
-
-                idleTuner.ScanStatus = domain.TunerScanStatus.Idle;
             }
             catch (Win32Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _httpContextAccessor.HttpContext.Abort();
+                _logger.LogError(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _httpContextAccessor.HttpContext.Abort();
+                _logger.LogError(ex.Message);
+            }
+            finally
+            {
+                if (process != null) {
+                    process.Close();
+                    process.Dispose();
+                }
+
+                await _httpContextAccessor.HttpContext.Response.Body.FlushAsync();
+                
+                // TODO: Not sure how I feel about calling this directly. Look into this later.
+                _httpContextAccessor.HttpContext.Response.Body.Close();
+
+                idleTuner.ScanStatus = domain.TunerScanStatus.Idle;
             }
         }
 
@@ -301,10 +321,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             {
                 var tunerCount = 4;
 
-                int.TryParse(_configuration.GetSection("LOCAST_TUNERCOUNT").Value, out tunerCount);
+                // int.TryParse(_configuration.GetSection("LOCAST_TUNERCOUNT").Value, out tunerCount);
 
                 _availableTuners = new List<domain.Tuner>();
-                for (var i = 0; i <= tunerCount; i++)
+                for (var i = 0; i < tunerCount; i++)
                 {
                     _availableTuners.Add(new domain.Tuner
                     {
