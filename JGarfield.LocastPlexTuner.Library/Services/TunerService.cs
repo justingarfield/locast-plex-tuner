@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using domain = JGarfield.LocastPlexTuner.Library.Domain;
 
@@ -95,10 +93,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             return Task.FromResult(tokenizedXml);
         }
 
-        public Task<string> GetDiscoverJson()
+        public async Task<Discover> GetDiscoverAsync()
         {
-            string tokenizedJson;
-
             var discover = new Discover {
                 FriendlyName = reporting_friendly_name,
                 Manufacturer = reporting_friendly_name,
@@ -112,27 +108,34 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 LineupURL = $"http://{base_url}/lineup.json",
             };
 
-            tokenizedJson = JsonSerializer.Serialize(discover);
-
-            return Task.FromResult(tokenizedJson);
+            return await Task.FromResult(discover);
         }
 
-        public Task<string> GetLineupStatusJsonAsync()
+        public Task<LineupStatus> GetLineupStatusAsync()
         {
-            string tokenizedJson;
+            LineupStatus lineupStatus = null;
 
-            // TODO: Handle hdhr_station_scan
             if (_hdhr_station_scan)
             {
-                tokenizedJson = JsonSerializer.Serialize(new LineupStatus());
+                lineupStatus = new LineupStatus
+                {
+                    ScanInProgress = true, 
+                    Progress = 50
+                };
             }
             else
             {
-                tokenizedJson = JsonSerializer.Serialize(new LineupComplete());
-                tokenizedJson.Replace("Antenna", tuner_type);
+                var tunerType = tuner_type ?? "Antenna";
+                lineupStatus = new LineupStatus
+                {
+                    ScanInProgress = false,
+                    ScanPossible = true,
+                    Source = tunerType,
+                    SourceList = new[] { tunerType }
+                };
             }
 
-            return Task.FromResult(tokenizedJson);
+            return Task.FromResult(lineupStatus);
         }
 
         public async Task<List<LineupItem>> GetChannelLineupAsync()
@@ -242,20 +245,21 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             return Task.FromResult(tokenizedXml);
         }
 
-        public async Task<string> GetRmgDeviceChannelItemsXml()
+        public async Task<MediaContainer> GetRmgDeviceChannelItemsXml()
         {
             var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels("506");
-            
-            var sb = new StringBuilder();
 
+            List<Channel> channels = new List<Channel>();
             foreach (var dmaStationsAndChannel in dmaStationsAndChannels)
             {
-                var tokenizedXml = string.Format(XmlTemplates.xmlRmgDeviceChannelItem, dmaStationsAndChannel.Value.channel, dmaStationsAndChannel.Value.friendlyName);
-                sb.Append(tokenizedXml);
+                var channel = new Channel(
+                    dmaStationsAndChannel.Value.friendlyName, 
+                    dmaStationsAndChannel.Value.channel
+                );
+                channels.Add(channel);
             }
-            var builtString = sb.ToString();
 
-            return string.Format(XmlTemplates.xmlRmgDeviceChannels, dmaStationsAndChannels.Count, builtString);
+            return new MediaContainer(channels);
         }
 
         public async Task<string> GetRmgDeviceIdentityXml()

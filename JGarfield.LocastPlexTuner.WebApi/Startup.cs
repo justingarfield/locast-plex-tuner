@@ -46,6 +46,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseMiddleware<RequestLoggingMiddleware>();
             }
 
             app.UseRouting();

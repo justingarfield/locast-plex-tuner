@@ -10,9 +10,9 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         Task<string> GetDeviceXml();
 
-        Task<string> GetDiscoverJson();
+        Task<Discover> GetDiscoverAsync();
 
-        Task<string> GetLineupStatusJsonAsync();
+        Task<LineupStatus> GetLineupStatusAsync();
 
         Task<List<LineupItem>> GetChannelLineupAsync();
 
@@ -28,7 +28,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         Task<string> GetRmgScanProvidersXml();
 
-        Task<string> GetRmgDeviceChannelItemsXml();
+        Task<MediaContainer> GetRmgDeviceChannelItemsXml();
 
         Task<string> GetRmgDeviceIdentityXml();
     }

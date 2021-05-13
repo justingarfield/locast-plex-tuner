@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace JGarfield.LocastPlexTuner.WebApi.Controllers
@@ -18,6 +20,12 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         private readonly IChannelsM3UService _channelsM3UService;
         
         private readonly IEpg2XmlService _epg2XmlService;
+
+        private JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
+        {
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        };
 
         public HomeController(ITunerService tunerService, IStationsService stationsService, IChannelsM3UService channelsM3UService, IEpg2XmlService epg2XmlService)
         {
@@ -55,46 +63,31 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
 
         [Route("/discover.json")]
         [HttpGet]
-        public async Task<IActionResult> GetDiscoverJson()
+        public async Task<IActionResult> GetDiscoverAsync()
         {
-            var discoverJson = await _tunerService.GetDiscoverJson();
-            return new ContentResult
-            {
-                Content = JsonSerializer.Serialize(discoverJson),
-                ContentType = "application/json",
-                StatusCode = 200
-            };
+            var discoverJson = await _tunerService.GetDiscoverAsync();
+            return new JsonResult(discoverJson, jsonSerializerOptions);
         }
 
         [Route("/lineup_status.json")]
         [HttpGet]
-        public async Task<IActionResult> GetLineupStatusJson()
+        public async Task<IActionResult> GetLineupStatusAsync()
         {
-            var json = await _tunerService.GetLineupStatusJsonAsync();
-            return new ContentResult
-            {
-                Content = json,
-                ContentType = "application/json",
-                StatusCode = 200
-            };
+            var json = await _tunerService.GetLineupStatusAsync();
+            return new JsonResult(json, jsonSerializerOptions);
         }
 
         [Route("/lineup.json")]
         [HttpGet]
-        public async Task<IActionResult> GetLineupJson()
+        public async Task<IActionResult> GetChannelLineupJsonAsync()
         {
             var channelLineup = await _tunerService.GetChannelLineupAsync();
-            return new ContentResult
-            {
-                Content = JsonSerializer.Serialize(channelLineup),
-                ContentType = "application/json",
-                StatusCode = 200
-            };
+            return new JsonResult(channelLineup, jsonSerializerOptions);
         }
 
         [Route("/lineup.xml")]
         [HttpGet]
-        public async Task<IActionResult> GetLineupXml()
+        public async Task<IActionResult> GetChannelLineupXmlAsync()
         {
             var channelLineup = await _tunerService.GetChannelLineupAsync();
             string channelLineupText;
@@ -125,23 +118,21 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
 
         [Route("/watch/{stationId}")]
         [HttpGet]
-        public async Task<IActionResult> Watch(long stationId)
+        public async Task Watch(long stationId)
         {
             await _tunerService.DoTuning(stationId);
-            return null;
         }
 
         [Route("/auto/v{stationId}")]
         [HttpGet]
-        public async Task<IActionResult> AutoV(long stationId)
+        public async Task AutoV(long stationId)
         {
             await _tunerService.DoTuning(stationId);
-            return null;
         }
 
         [Route("/devices/{uuid}/media/{channelNo}")]
         [HttpGet]
-        public async Task<IActionResult> DeviceTuning(string uuid, string channelNo)
+        public async Task DeviceTuning(string uuid, string channelNo)
         {
             channelNo = channelNo.Replace("id://", string.Empty).Replace("/", string.Empty);
 
@@ -150,8 +141,6 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             var stationId = await _stationsService.GetStationIdByChannel("506", channel);
 
             await _tunerService.DoTuning(stationId);
-
-            return null;
         }
 
         [Route("/xmltv.xml")]
@@ -197,10 +186,32 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> RmgDeviceChannelItems(string uuid)
         {
-            var xml = await _tunerService.GetRmgDeviceChannelItemsXml();
+            var mediaContainerWithChannels = await _tunerService.GetRmgDeviceChannelItemsXml();
+            string mediaContainerWithChannelsText;
+
+            var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+            var serializer = new XmlSerializer(mediaContainerWithChannels.GetType());
+            var settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.OmitXmlDeclaration = true;
+
+            using (var stream = new StringWriter())
+            using (var writer = XmlWriter.Create(stream, settings))
+            {
+                serializer.Serialize(writer, mediaContainerWithChannels, emptyNamespaces);
+                mediaContainerWithChannelsText = stream.ToString();
+            }
+
+            var xDoc = XDocument.Parse(mediaContainerWithChannelsText.ToString());
+            foreach (var x in xDoc.Descendants("Channels").Reverse())
+            {
+                x.AddAfterSelf(x.Nodes());
+                x.Remove();
+            }
+            
             return new ContentResult
             {
-                Content = xml,
+                Content = xDoc.ToString(),
                 ContentType = "application/xml",
                 StatusCode = 200
             };

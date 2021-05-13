@@ -37,7 +37,7 @@
 
         public const string xmlRmgIdentification = @"
                     <MediaContainer>
-                        <MediaGrabber identifier=""tv.plex.grabbers.locast2plex"" title=""{0}"" protocols=""livetv"" />
+                        <MediaGrabber identifier=""tv.plex.grabbers.locastplextuner"" title=""{0}"" protocols=""livetv"" />
                     </MediaContainer>";
 
         public const string xmlRmgDeviceDiscover = @"
