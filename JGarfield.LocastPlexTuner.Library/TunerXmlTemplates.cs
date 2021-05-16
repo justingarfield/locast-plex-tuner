@@ -1,4 +1,4 @@
-﻿namespace JGarfield.LocastPlexTuner.Library.Tuner
+﻿namespace JGarfield.LocastPlexTuner.Library
 {
     /// <summary>
     /// These are templates used to quickly form XML responses for the IPTV capabilities.
@@ -6,7 +6,7 @@
     /// Hold-over from original Python3 to .NET Core Conversion of locast2plex.
     /// </summary>
     // TODO: These need to be converted into actual classes and this needs to go bye bye.
-    public static class XmlTemplates
+    public static class TunerXmlTemplates
     {
         public const string xmlDiscover = @"
                         <root xmlns=""urn:schemas-upnp-org:device-1-0"">

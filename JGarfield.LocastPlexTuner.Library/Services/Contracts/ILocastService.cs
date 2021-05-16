@@ -14,6 +14,6 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
 
         Task<List<LocastEpgStationDto>> GetEpgStationsForDmaAsync(string dma, DateTimeOffset? startTime = null);
 
-        Task<string> GetStationStreamUri(long stationId);
+        Task<Uri> GetStationStreamUri(long stationId);
     }
 }

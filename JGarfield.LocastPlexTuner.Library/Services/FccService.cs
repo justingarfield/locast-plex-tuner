@@ -15,18 +15,37 @@ using TinyCsvParser;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
+    /// <summary>
+    /// Provides capabilities that are FCC Licensing and Management System (LMS) Facilities Database related.
+    /// <br /><br />
+    /// FCC LMS Facilities Databases are the the databases that hold all information related to Station Callsigns, Channel Frequencies, 
+    /// what Station/Channel Listings are active and licensed to operate, etc.
+    /// <br /><br />
+    /// For more information, see: <see href="https://enterpriseefiling.fcc.gov/dataentry/public/tv/lmsDatabase.html" />
+    /// </summary>
     public class FccService : IFccService
     {
         #region Private Members
 
+        /// <summary>
+        /// 
+        /// </summary>
         private readonly ILogger<FccService> _logger;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private readonly IFccClient _fccClient;
 
         #endregion Private Members
 
         #region Constructor
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="fccClient"></param>
         public FccService(ILogger<FccService> logger, IFccClient fccClient) {
             _logger = logger;
             _fccClient = fccClient;
@@ -36,6 +55,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         #region Public Methods
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<FccStation>> GetFccStationsAsync()
         {
             if (LmsFacilityDbExists())
@@ -45,6 +68,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 var localTimestamp = GetLocalLmsFacilityDbModifiedTime();
                 var timeDifference = DateTimeOffset.UtcNow.Subtract(localTimestamp);
 
+                // FCC LMS Database URIs don't allow HEAD requests anymore, so we can no longer use that to compare against.
                 if (timeDifference.Hours > 24)
                 {
                     _logger.LogInformation("Local copy of LMS Facility Database is out-dated.");

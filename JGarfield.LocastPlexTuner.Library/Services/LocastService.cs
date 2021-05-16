@@ -73,7 +73,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             return epgResponse;
         }
 
-        public async Task<string> GetStationStreamUri(long stationId)
+        public async Task<Uri> GetStationStreamUri(long stationId)
         {
             var dma = await GetDmaLocationAsync();
 
@@ -108,14 +108,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 if (bestStream != null)
                 {
                     _logger.LogInformation($"{stationId} will use {bestStream.ResolutionWidth} x {bestStream.ResolutionHeight} resolution at {bestStream.Bandwidth}bps");
-                    var streamUri = new Uri(new Uri(locastStationDto.streamUrl), bestStream.Path);
-                    return streamUri.ToString();
+                    return new Uri(new Uri(locastStationDto.streamUrl), bestStream.Path);
                 }
             }
             else
             {
                 _logger.LogInformation("No variant streams found for this station.  Assuming single stream only.");
-                return locastStationDto.streamUrl;
+                return new Uri(locastStationDto.streamUrl);
             }
 
             return null;

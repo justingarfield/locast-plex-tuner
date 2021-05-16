@@ -35,6 +35,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
                     .AddSingleton<IFccService, FccService>()
                     .AddSingleton<IInitializationService, InitializationService>()
                     .AddSingleton<IIpInfoService, IpInfoService>()
+                    .AddSingleton<IHttpFfmpegService, HttpFfmpegService>()
                     .AddSingleton<ILocastService, LocastService>()
                     .AddSingleton<IStationsService, StationsService>()
                     .AddSingleton<ITunerService, TunerService>()
