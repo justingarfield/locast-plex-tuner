@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using JGarfield.LocastPlexTuner.Library.Services.Contracts;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -6,17 +7,6 @@ using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
-    public interface IStationsService
-    {
-        Task GenerateDmaStationsAndChannelsFile(string dma);
-
-        Task<Dictionary<long, Stuff>> GetDmaStationsAndChannels(string dma);
-
-        Task RefreshDmaStationsAndChannels(string dma);
-
-        Task<long> GetStationIdByChannel(string dma, decimal channel);
-    }
-
     public class StationsService : IStationsService
     {
         private readonly IFccService _fccService;

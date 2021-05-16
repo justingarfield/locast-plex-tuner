@@ -1,8 +1,9 @@
-﻿using JGarfield.LocastPlexTuner.Library.Clients;
+﻿using JGarfield.LocastPlexTuner.Library.Clients.Contracts;
+using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Dma;
+using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Epg;
 using JGarfield.LocastPlexTuner.Library.Domain;
-using JGarfield.LocastPlexTuner.Library.DTOs.Locast;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using M3USharp;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,17 +11,6 @@ using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
-    public interface ILocastService
-    {
-        Task<DmaLocation> GetDmaLocationAsync(string zipCode = null);
-        
-        Task<bool> IsActivelyDonatingUserAsync();
-
-        Task<List<LocastEpgStationDto>> GetEpgStationsForDmaAsync(string dma, DateTimeOffset? startTime = null);
-
-        Task<string> GetStationStreamUri(long stationId);
-    }
-
     public class LocastService : ILocastService
     {
         private readonly ILogger<LocastService> _logger;

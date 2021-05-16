@@ -1,13 +1,9 @@
-﻿using JGarfield.LocastPlexTuner.Library.Clients;
+﻿using JGarfield.LocastPlexTuner.Library.Clients.Contracts;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
-    public interface IIpInfoService
-    {
-        Task<string> GetPublicIpAddressAsync();
-    }
-
     public class IpInfoService : IIpInfoService
     {
         private IIpInfoClient _ipInfoClient;

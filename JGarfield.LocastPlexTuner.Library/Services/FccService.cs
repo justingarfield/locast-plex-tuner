@@ -1,6 +1,7 @@
-﻿using JGarfield.LocastPlexTuner.Library.Clients;
+﻿using JGarfield.LocastPlexTuner.Library.Clients.Contracts;
+using JGarfield.LocastPlexTuner.Library.Clients.DTOs.FCC;
 using JGarfield.LocastPlexTuner.Library.Domain;
-using JGarfield.LocastPlexTuner.Library.DTOs.FCC;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using JGarfield.LocastPlexTuner.Library.TinyCsvParser;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,11 +15,6 @@ using TinyCsvParser;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
-    public interface IFccService
-    {
-        Task<IEnumerable<FccStation>> GetFccStationsAsync();
-    }
-
     public class FccService : IFccService
     {
         #region Private Members

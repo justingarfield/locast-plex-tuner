@@ -12,5 +12,5 @@ I was having issues with that solution working properly, and have no clue how to
 
 ## Terminology
 
-DMA = Designated Market Area
-EPG = Electronic Programming Guide
+* DMA = Designated Market Area
+* EPG = Electronic Programming Guide

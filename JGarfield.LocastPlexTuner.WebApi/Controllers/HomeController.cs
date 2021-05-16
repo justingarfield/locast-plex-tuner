@@ -1,4 +1,5 @@
 ﻿using JGarfield.LocastPlexTuner.Library.Services;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
@@ -17,7 +18,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
 
         private readonly IStationsService _stationsService;
 
-        private readonly IChannelsM3UService _channelsM3UService;
+        private readonly IM3UService _m3uService;
         
         private readonly IEpg2XmlService _epg2XmlService;
 
@@ -27,11 +28,11 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             WriteIndented = true
         };
 
-        public HomeController(ITunerService tunerService, IStationsService stationsService, IChannelsM3UService channelsM3UService, IEpg2XmlService epg2XmlService)
+        public HomeController(ITunerService tunerService, IStationsService stationsService, IM3UService m3uService, IEpg2XmlService epg2XmlService)
         {
             _tunerService = tunerService;
             _stationsService = stationsService;
-            _channelsM3UService = channelsM3UService;
+            _m3uService = m3uService;
             _epg2XmlService = epg2XmlService;
         }
 
@@ -160,7 +161,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> ChannelsM3U()
         {
-            var m3uFileContent = await _channelsM3UService.GetChannelsM3U();
+            var m3uFileContent = await _m3uService.GetChannelsM3U();
             return new ContentResult
             {
                 Content = m3uFileContent,

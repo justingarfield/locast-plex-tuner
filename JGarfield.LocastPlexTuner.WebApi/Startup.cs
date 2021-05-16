@@ -1,5 +1,7 @@
 using JGarfield.LocastPlexTuner.Library.Clients;
+using JGarfield.LocastPlexTuner.Library.Clients.Contracts;
 using JGarfield.LocastPlexTuner.Library.Services;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +30,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
                     .AddSingleton<IIpInfoClient, IpInfoClient>()
                     .AddSingleton<ILocastClient, LocastClient>()
                     .AddSingleton<IFccClient, FccClient>()
-                    .AddSingleton<IChannelsM3UService, ChannelsM3UService>()
+                    .AddSingleton<IM3UService, M3UService>()
                     .AddSingleton<IEpg2XmlService, Epg2XmlService>()
                     .AddSingleton<IFccService, FccService>()
                     .AddSingleton<IInitializationService, InitializationService>()

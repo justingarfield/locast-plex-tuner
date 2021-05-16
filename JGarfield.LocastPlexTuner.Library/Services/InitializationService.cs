@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using JGarfield.LocastPlexTuner.Library.Services.Contracts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
@@ -6,12 +7,6 @@ using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
-    public interface IInitializationService {
-        void LogInitializationBanner();
-
-        Task VerifyEnvironmentAsync();
-    }
-
     public class InitializationService : IInitializationService
     {
         private readonly ILogger<InitializationService> _logger;

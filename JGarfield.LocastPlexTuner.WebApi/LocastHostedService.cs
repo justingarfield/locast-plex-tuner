@@ -1,5 +1,6 @@
 ﻿using JGarfield.LocastPlexTuner.Library.Domain;
 using JGarfield.LocastPlexTuner.Library.Services;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

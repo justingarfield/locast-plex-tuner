@@ -1,5 +1,11 @@
 ﻿namespace JGarfield.LocastPlexTuner.Library.Tuner
 {
+    /// <summary>
+    /// These are templates used to quickly form XML responses for the IPTV capabilities.
+    /// <br /><br />
+    /// Hold-over from original Python3 to .NET Core Conversion of locast2plex.
+    /// </summary>
+    // TODO: These need to be converted into actual classes and this needs to go bye bye.
     public static class XmlTemplates
     {
         public const string xmlDiscover = @"
@@ -27,13 +33,6 @@
                             </serviceList>
                         </device>
                     </root>";
-
-        public const string xmlLineupItem = @"
-                    <Program>
-                        <GuideNumber>{}</GuideNumber>
-                        <GuideName>{}</GuideName>
-                        <URL>http://{}</URL>
-                    </Program>";
 
         public const string xmlRmgIdentification = @"
                     <MediaContainer>
@@ -90,20 +89,6 @@
                         status=""scanning""
                         progress=""50""
                         channelsFound=""0"" />";
-
-        public const string xmlRmgDeviceChannels = @"
-                    <MediaContainer size=""{0}"">
-                        {1}
-                    </MediaContainer>";
-
-        public const string xmlRmgDeviceChannelItem = @"
-                    <Channel 
-                        drm=""0""
-                        channelIdentifier=""id://{0}""
-                        name=""{1}"" 
-                        origin=""LocastPlexTuner""
-                        number=""{0}""
-                        type=""tv"" />";
 
         public const string xmlRmgScanProviders = @"
                     <MediaContainer size=""1"" simultaneousScanners=""0"">

@@ -1,11 +1,12 @@
-﻿using JGarfield.LocastPlexTuner.Library.DTOs.Tuner;
+﻿using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Tuner;
+using JGarfield.LocastPlexTuner.Library.Metrics;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using JGarfield.LocastPlexTuner.Library.Tuner;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ using domain = JGarfield.LocastPlexTuner.Library.Domain;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
-    public class TunerService : ITunerService
+    public class TunerService : ITunerService, IMetricsProvider<CollectionOfTunerMetrics>
     {
         #region Private Members
 
@@ -48,7 +49,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly IConfiguration _configuration;
 
-        private List<domain.Tuner> _availableTuners;
+        private List<domain.Tuner> _tunerPool;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -161,7 +162,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
             var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels("506");
 
-            var idleTuner = await GetIdleTuner();
+            var idleTuner = GetIdleTuner();
 
             if (idleTuner == null)
             {
@@ -170,7 +171,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 return;
             }
 
-            idleTuner.ScanStatus = domain.TunerScanStatus.Tuned;
+            idleTuner.ScanStatus = domain.TunerStatus.TunedToChannel;
             idleTuner.CurrentChannel = dmaStationsAndChannels[stationId].channel;
 
             var ffmpegBinary = @"D:\Utils\ffmpeg-4.4-full_build\bin\ffmpeg.exe";
@@ -229,34 +230,43 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 _httpContextAccessor.HttpContext.Response.Body.Close();
 
                 // Place the Tuner back into the available pool by marking it as Idle
-                idleTuner.ScanStatus = domain.TunerScanStatus.Idle;
+                idleTuner.ScanStatus = domain.TunerStatus.Idle;
             }
+        }
+
+        public async Task GetStatistics()
+        {
+            await Task.CompletedTask;
         }
 
         public async Task StartStationScan()
         {
-            var tuners = await GetAllTuners();
-            var idleTuners = tuners.Where(_ => _.ScanStatus == domain.TunerScanStatus.Idle);
+            var tuners = GetTuners();
+            var idleTuners = tuners.Where(_ => _.ScanStatus == domain.TunerStatus.Idle);
 
             foreach (var tuner in idleTuners)
             {
-                tuner.ScanStatus = domain.TunerScanStatus.Scan;
+                tuner.ScanStatus = domain.TunerStatus.Scanning;
             }
 
             _hdhr_station_scan = true;
+
+            await Task.CompletedTask;
         }
 
         public async Task StopAllScanningForAllTuners()
         {
-            var tuners = await GetAllTuners();
-            var scanningTuners = tuners.Where(_ => _.ScanStatus == domain.TunerScanStatus.Scan);
+            var tuners = GetTuners();
+            var scanningTuners = tuners.Where(_ => _.ScanStatus == domain.TunerStatus.Scanning);
 
             foreach (var tuner in scanningTuners)
             {
-                tuner.ScanStatus = domain.TunerScanStatus.Idle;
+                tuner.ScanStatus = domain.TunerStatus.Idle;
             }
 
             _hdhr_station_scan = false;
+
+            await Task.CompletedTask;
         }
 
         public Task<string> GetRmgScanProvidersXml()
@@ -284,16 +294,16 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public async Task<string> GetRmgDeviceIdentityXml()
         {
-            var allTuners = await GetAllTuners();
+            var allTuners = GetTuners();
             var sb = new StringBuilder();
             string tokenizedXml;
             for (var i = 0; i < allTuners.Count; i++)
             {
-                if (allTuners[i].ScanStatus == domain.TunerScanStatus.Idle)
+                if (allTuners[i].ScanStatus == domain.TunerStatus.Idle)
                 {
                     tokenizedXml = string.Format(XmlTemplates.xmlRmgTunerIdle, i);
                 } 
-                else if (allTuners[i].ScanStatus == domain.TunerScanStatus.Scan)
+                else if (allTuners[i].ScanStatus == domain.TunerStatus.Scanning)
                 {
                     tokenizedXml = string.Format(XmlTemplates.xmlRmgTunerScanning, i);
                 } 
@@ -306,34 +316,51 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             }
 
             tokenizedXml = string.Format(XmlTemplates.xmlRmgDeviceIdentity, uuid, reporting_friendly_name, reporting_model, tuner_count, base_url, sb.ToString());
-            return tokenizedXml;
+            return await Task.FromResult(tokenizedXml);
         }
 
-        private async Task<domain.Tuner> GetIdleTuner()
+        private domain.Tuner GetIdleTuner()
         {
-            var allTuners = await GetAllTuners();
-            return allTuners.First(tuner => tuner.ScanStatus == domain.TunerScanStatus.Idle);
+            var allTuners = GetTuners();
+            return allTuners.First(tuner => tuner.ScanStatus == domain.TunerStatus.Idle);
         }
 
-        private async Task<List<domain.Tuner>> GetAllTuners()
+        private List<domain.Tuner> GetTuners(domain.TunerStatus? scanStatus = null)
         {
-            if (_availableTuners == null)
+            if (_tunerPool == null)
             {
                 var tunerCount = 4;
 
                 // int.TryParse(_configuration.GetSection("LOCAST_TUNERCOUNT").Value, out tunerCount);
 
-                _availableTuners = new List<domain.Tuner>();
+                _tunerPool = new List<domain.Tuner>();
                 for (var i = 0; i < tunerCount; i++)
                 {
-                    _availableTuners.Add(new domain.Tuner
+                    _tunerPool.Add(new domain.Tuner
                     {
-                        ScanStatus = domain.TunerScanStatus.Idle
+                        ScanStatus = domain.TunerStatus.Idle
                     });
                 }
             }
 
-            return await Task.FromResult(_availableTuners);
+            var tuners = scanStatus.HasValue
+                    ? _tunerPool.Where(_ => _.ScanStatus == scanStatus).ToList() 
+                    : _tunerPool;
+
+            return tuners;
+        }
+
+        public CollectionOfTunerMetrics GetMetrics()
+        {
+            throw new NotImplementedException();
+            /*var metricsCollection = new CollectionOfTunerMetrics();
+            foreach (var tuner in GetTuners())
+            {
+                var tunerMetrics = new TunerMetrics
+                {
+                    
+                };
+            }*/
         }
     }
 }

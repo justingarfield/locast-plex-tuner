@@ -1,4 +1,5 @@
-﻿using JGarfield.LocastPlexTuner.Library.DTOs.Locast;
+﻿using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Epg;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,15 +10,6 @@ using System.Xml;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
-    public interface IEpg2XmlService
-    {
-        Task WriteDummyXmlIfNotExists();
-
-        Task GenerateEpgFile();
-
-        Task<string> GetEpgFile();
-    }
-
     public class Epg2XmlService : IEpg2XmlService
     {
         private const string DMA = "506";

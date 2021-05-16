@@ -1,5 +1,8 @@
-﻿using JGarfield.LocastPlexTuner.Library.DTOs.Locast;
-using JGarfield.LocastPlexTuner.Library.DTOs.Locast.Station;
+﻿using JGarfield.LocastPlexTuner.Library.Clients.Contracts;
+using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Dma;
+using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Epg;
+using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Station;
+using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.User;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;

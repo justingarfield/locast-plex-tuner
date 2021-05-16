@@ -1,4 +1,4 @@
-﻿using JGarfield.LocastPlexTuner.Library.DTOs.FCC;
+﻿using JGarfield.LocastPlexTuner.Library.Clients.DTOs.FCC;
 using TinyCsvParser.Mapping;
 
 namespace JGarfield.LocastPlexTuner.Library.TinyCsvParser
