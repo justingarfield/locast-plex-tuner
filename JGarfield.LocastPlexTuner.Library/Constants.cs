@@ -26,5 +26,21 @@ namespace JGarfield.LocastPlexTuner.Library
         public static readonly string APPLICATION_PARSED_FILES_PATH = Path.Combine(APPLICATION_DATA_PATH, "parsed");
 
         public static readonly string APPLICATION_CACHE_PATH = Path.Combine(APPLICATION_DATA_PATH, "cache");
+
+        public const string reporting_friendly_name = "LocastPlexTuner";
+
+        public const string reporting_model = "lpt";
+
+        public const string uuid = "xasudfds";
+
+        public const string base_url = "localhost:6077";
+
+        public const string reporting_firmware_name = "locastplextuner";
+
+        public const int tuner_count = 4;
+
+        public const string reporting_firmware_ver = "v0.0.1";
+
+        public const string tuner_type = "Antenna";
     }
 }

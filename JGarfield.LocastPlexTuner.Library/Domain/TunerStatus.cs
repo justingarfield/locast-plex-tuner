@@ -1,9 +1,23 @@
 ﻿namespace JGarfield.LocastPlexTuner.Library.Domain
 {
+    /// <summary>
+    /// The different states a tuner instance can be in.
+    /// </summary>
     public enum TunerStatus
     {
+        /// <summary>
+        /// The tuner is currently idle and awaiting use.
+        /// </summary>
         Idle,
+
+        /// <summary>
+        /// The tuner is currently performing a channel scan.
+        /// </summary>
         Scanning,
-        TunedToChannel
+
+        /// <summary>
+        /// The tuner is currently tuned to a particular channel.
+        /// </summary>
+        Tuned
     }
 }
