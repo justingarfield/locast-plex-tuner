@@ -20,13 +20,16 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly IEpg2XmlService _epg2XmlService;
 
-        public InitializationService(ILogger<InitializationService> logger, IConfiguration configuration, ILocastService locastService, IStationsService stationsService, IEpg2XmlService epg2XmlService)
+        private readonly ApplicationContext _applicationContext;
+
+        public InitializationService(ILogger<InitializationService> logger, IConfiguration configuration, ILocastService locastService, IStationsService stationsService, IEpg2XmlService epg2XmlService, ApplicationContext applicationContext)
         {
             _logger = logger;
             _configuration = configuration;
             _locastService = locastService;
             _stationsService = stationsService;
             _epg2XmlService = epg2XmlService;
+            _applicationContext = applicationContext;
         }
 
         public void LogInitializationBanner()
@@ -100,6 +103,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 throw new LocastPlexTunerDomainException("Unable to determine the Designated Market Area (DMA) for your location. Please visit https://www.locast.org/dma to verify your DMA and set it explicitly using the LOCAST_DMA configuration setting.");
             }
 
+            _applicationContext.DMA = dmaLocation;
+
             if (!dmaLocation.Active)
             {
                 throw new LocastPlexTunerDomainException($"The Designated Market Area (DMA) for your location is either not supported by Locast, or they are reporting it as inactive for some reason. Please visit https://www.locast.org/dma to verify your DMA ({dmaLocation.DMA} [{dmaLocation.Name}]).");
@@ -115,7 +120,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             await _stationsService.RefreshDmaStationsAndChannels(dmaLocation.DMA);
 
             _logger.LogInformation("Starting First time EPG refresh...");
-            await _epg2XmlService.GenerateEpgFile();
+            await _epg2XmlService.GenerateEpgFile(dmaLocation.DMA);
         }
     }
 }

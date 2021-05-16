@@ -33,6 +33,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
             _initializationService.LogInitializationBanner();
 
             await _initializationService.VerifyEnvironmentAsync(cancellationToken);
+
             await _initializationService.InitializeEnvironmentAsync();
             
             // TODO: Start timer to call RefreshDmaStationsAndChannels again at some point

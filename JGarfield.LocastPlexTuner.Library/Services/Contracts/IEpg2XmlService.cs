@@ -4,10 +4,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
 {
     public interface IEpg2XmlService
     {
-        Task WriteDummyXmlIfNotExists();
+        Task WriteDummyXmlIfNotExists(string dma);
 
-        Task GenerateEpgFile();
+        Task GenerateEpgFile(string dma);
 
-        Task<string> GetEpgFile();
+        Task<string> GetEpgFile(string dma);
     }
 }

@@ -30,6 +30,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         /// </summary>
         private readonly IStationsService _stationsService;
 
+        private readonly ApplicationContext _applicationContext;
+
         #endregion Private Members
 
         #region Constructor
@@ -38,9 +40,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         /// Instantiates a new <see cref="M3UService"/> using the provided <see cref="IStationsService"/> implementation.
         /// </summary>
         /// <param name="stationsService"></param>
-        public M3UService(IStationsService stationsService)
+        public M3UService(IStationsService stationsService, ApplicationContext applicationContext)
         {
             _stationsService = stationsService;
+            _applicationContext = applicationContext;
         }
 
         #endregion Constructor
@@ -53,7 +56,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var base_url = "localhost:6077";
             var xmlTvUrl = $"http://{base_url}/xmltv.xml";
 
-            var stations = await _stationsService.GetDmaStationsAndChannels("506");
+            var stations = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
 
             var sb = new StringBuilder();
             sb.AppendLine($"{M3U_FILE_HEADER_DIRECTIVE} url-tvg=\"{xmlTvUrl}\" x-tvg-url=\"{xmlTvUrl}\"");

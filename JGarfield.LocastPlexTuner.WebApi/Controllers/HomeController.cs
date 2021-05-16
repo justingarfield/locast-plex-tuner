@@ -1,4 +1,6 @@
-﻿using JGarfield.LocastPlexTuner.Library.Services;
+﻿using JGarfield.LocastPlexTuner.Library;
+using JGarfield.LocastPlexTuner.Library.Domain.Exceptions;
+using JGarfield.LocastPlexTuner.Library.Services;
 using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,6 +23,8 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         private readonly IM3UService _m3uService;
         
         private readonly IEpg2XmlService _epg2XmlService;
+        
+        private readonly ApplicationContext _applicationContext;
 
         private JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
         {
@@ -28,12 +32,13 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             WriteIndented = true
         };
 
-        public HomeController(ITunerService tunerService, IStationsService stationsService, IM3UService m3uService, IEpg2XmlService epg2XmlService)
+        public HomeController(ITunerService tunerService, IStationsService stationsService, IM3UService m3uService, IEpg2XmlService epg2XmlService, ApplicationContext applicationContext)
         {
             _tunerService = tunerService;
             _stationsService = stationsService;
             _m3uService = m3uService;
             _epg2XmlService = epg2XmlService;
+            _applicationContext = applicationContext;
         }
 
         [Route("/")]
@@ -145,7 +150,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
 
             decimal.TryParse(channelNo, out decimal channel);
 
-            var stationId = await _stationsService.GetStationIdByChannel("506", channel);
+            var stationId = await _stationsService.GetStationIdByChannel(_applicationContext.DMA.DMA, channel);
 
             await _tunerService.DoTuning(stationId);
         }
@@ -154,7 +159,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> XmlTv()
         {
-            var content = await _epg2XmlService.GetEpgFile();
+            var content = await _epg2XmlService.GetEpgFile(_applicationContext.DMA.DMA);
             return new ContentResult
             {
                 Content = content,
@@ -253,7 +258,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
                 {
                     Response.OnCompleted(async () =>
                     {
-                        await _stationsService.RefreshDmaStationsAndChannels("506");
+                        await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.DMA.DMA);
                         await _tunerService.StopAllScanningForAllTuners();
                     });
                 }
@@ -265,7 +270,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             }
             else
             {
-                throw new ApplicationException("Bad scan command yo!");
+                return BadRequest("Unrecognized scan command.");
             }
 
             return null;
@@ -305,7 +310,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             {
                 Response.OnCompleted(async () =>
                 {
-                    await _stationsService.RefreshDmaStationsAndChannels("506");
+                    await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.DMA.DMA);
                     await _tunerService.StopAllScanningForAllTuners();
                 });
             }

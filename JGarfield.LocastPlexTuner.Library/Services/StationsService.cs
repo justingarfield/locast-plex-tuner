@@ -69,7 +69,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma}_stations.json");
             using (var fs = File.Create(filePath))
             {
-                await JsonSerializer.SerializeAsync<Dictionary<long, Stuff>>(fs, finalizedEpgStations);
+                await JsonSerializer.SerializeAsync(fs, finalizedEpgStations);
                 await fs.FlushAsync();
             }
         }

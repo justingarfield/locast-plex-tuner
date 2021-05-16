@@ -30,15 +30,25 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private List<Tuner> _tunerInstances;
 
+        private readonly ApplicationContext _applicationContext;
+
         #endregion Private Members
 
-        public TunerService(ILogger<TunerService> logger, IStationsService stationsService, ILocastService locastService, IHttpContextAccessor httpContextAccessor, IHttpFfmpegService httpFfmpegService)
+        public TunerService(
+            ILogger<TunerService> logger, 
+            IStationsService stationsService, 
+            ILocastService locastService, 
+            IHttpContextAccessor httpContextAccessor, 
+            IHttpFfmpegService httpFfmpegService, 
+            ApplicationContext applicationContext
+        )
         {
             _logger = logger;
             _stationsService = stationsService;
             _locastService = locastService;
             _httpContextAccessor = httpContextAccessor;
             _httpFfmpegService = httpFfmpegService;
+            _applicationContext = applicationContext;
         }
 
         public Task<string> GetRmgIdentification()
@@ -124,7 +134,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         {
             var channelLineup = new List<LineupItem>();
 
-            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels("506");
+            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
             foreach (var dmaStationsAndChannel in dmaStationsAndChannels)
             {
                 channelLineup.Add(new LineupItem {
@@ -144,7 +154,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var stationStreamUri = await _locastService.GetStationStreamUri(stationId);
             _logger.LogTrace($"Using a {nameof(stationStreamUri)} value of: {stationStreamUri}");
 
-            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels("506");
+            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
             _logger.LogTrace($"Using {nameof(dmaStationsAndChannels)} value of: {dmaStationsAndChannels}");
 
             var idleTuner = GetIdleTuner();
@@ -218,7 +228,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public async Task<MediaContainer> GetRmgDeviceChannelItemsXml()
         {
-            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels("506");
+            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
 
             List<Channel> channels = new List<Channel>();
             foreach (var dmaStationsAndChannel in dmaStationsAndChannels)

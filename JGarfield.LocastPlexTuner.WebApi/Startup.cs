@@ -1,3 +1,4 @@
+using JGarfield.LocastPlexTuner.Library;
 using JGarfield.LocastPlexTuner.Library.Clients;
 using JGarfield.LocastPlexTuner.Library.Clients.Contracts;
 using JGarfield.LocastPlexTuner.Library.Services;
@@ -39,6 +40,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
                     .AddSingleton<ILocastService, LocastService>()
                     .AddSingleton<IStationsService, StationsService>()
                     .AddSingleton<ITunerService, TunerService>()
+                    .AddSingleton<ApplicationContext>()
                     .AddHostedService<LocastHostedService>()
                     .AddHttpContextAccessor();
         }
