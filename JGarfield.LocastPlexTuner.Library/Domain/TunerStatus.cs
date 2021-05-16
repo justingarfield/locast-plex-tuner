@@ -16,8 +16,8 @@
         Scanning,
 
         /// <summary>
-        /// The tuner is currently tuned to a particular channel.
+        /// The tuner is currently tuned to and streaming a particular channel.
         /// </summary>
-        Tuned
+        Streaming
     }
 }

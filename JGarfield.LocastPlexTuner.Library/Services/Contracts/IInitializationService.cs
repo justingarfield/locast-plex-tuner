@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
 {
@@ -6,6 +7,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
     {
         void LogInitializationBanner();
 
-        Task VerifyEnvironmentAsync();
+        Task VerifyEnvironmentAsync(CancellationToken cancellationToken);
+
+        Task InitializeEnvironmentAsync();
     }
 }

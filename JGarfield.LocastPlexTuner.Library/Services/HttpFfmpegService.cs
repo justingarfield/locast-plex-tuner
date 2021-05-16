@@ -18,13 +18,11 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public async Task StreamToHttpResponseAsync(Uri streamUri, HttpContext httpContext)
         {
-            var ffmpegBinary = @"D:\Utils\ffmpeg-4.4-full_build\bin\ffmpeg.exe";
-
             Process process = null;
             try
             {
                 var processStartInfo = new ProcessStartInfo();
-                processStartInfo.FileName = ffmpegBinary;
+                processStartInfo.FileName = Constants.FFMPEG_BINARY;
 
                 // Notes for ffmpeg arguments:
                 //  -c copy             = Copy all streams as-is (we don't need to re-encode, just copy and pass it through)
@@ -40,7 +38,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
                 process = Process.Start(processStartInfo);
 
-                byte[] videoData = new byte[4096];
+                var videoData = new byte[65536];
                 var bytesRead = await process.StandardOutput.BaseStream.ReadAsync(videoData);
 
                 while (!httpContext.RequestAborted.IsCancellationRequested)

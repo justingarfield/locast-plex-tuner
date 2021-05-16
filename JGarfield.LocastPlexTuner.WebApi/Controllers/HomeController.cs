@@ -121,6 +121,12 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task Watch(long stationId)
         {
+            /*
+            var filePath = @"c:\temp\file.mpg"; // Your path to the audio file.
+            var bufferSize = 1024;
+            var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize);
+            return File(fileStream, "audio/mpeg");
+            */
             await _tunerService.DoTuning(stationId);
         }
 

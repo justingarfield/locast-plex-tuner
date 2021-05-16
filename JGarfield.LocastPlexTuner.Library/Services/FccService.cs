@@ -82,7 +82,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
                 await ExtractLmsFacilityDbZipAsync();
                 var results = await ParseLmsFacilityDbAsync();
-                _logger.LogWarning($"Found {results.Count()} valid station records");
+                _logger.LogInformation($"Found {results.Count()} valid station records");
             }
             else
             {

@@ -32,7 +32,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             using var client = _clientFactory.CreateClient();
             client.BaseAddress = Constants.LOCAST_API_BASE_URI;
             
-            return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/zip/{zipCode}?locale=es-US");
+            return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/zip/{zipCode}");
         }
 
         public async Task<LocastDmaLocationDto> GetLocationByIpAddressAsync(string ipAddress)
@@ -41,7 +41,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             client.BaseAddress = Constants.LOCAST_API_BASE_URI;
             client.DefaultRequestHeaders.Add("client_ip", ipAddress);
             
-            return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/ip?locale=es-US");
+            return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/ip");
         }
 
         public async Task<LocastDmaLocationDto> GetLocationByLatLongAsync(double latitude, double longitude)

@@ -5,6 +5,8 @@ namespace JGarfield.LocastPlexTuner.Library
 {
     public static class Constants
     {
+        public const string FFMPEG_BINARY = @"D:\Utils\ffmpeg-4.4-full_build\bin\ffmpeg.exe";
+
         public const string DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.56";
         
         public static readonly Uri LOCAST_API_BASE_URI = new Uri("https://api.locastnet.org/api/");

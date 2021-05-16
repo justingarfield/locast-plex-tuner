@@ -38,11 +38,11 @@ namespace JGarfield.LocastPlexTuner.Library.Domain
         }
 
         /// <summary>
-        /// Sets the tuner's state to <see cref="TunerStatus.Tuned"/>.
+        /// Sets the tuner's state to <see cref="TunerStatus.Streaming"/>.
         /// </summary>
         public void SetScanStatusToTuned()
         {
-            Status = TunerStatus.Tuned;
+            Status = TunerStatus.Streaming;
         }
 
         #region Metrics Related

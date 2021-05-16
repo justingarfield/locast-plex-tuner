@@ -58,7 +58,7 @@
         public const string xmlRmgDeviceIdentity = @"
                     <MediaContainer size=""1"">
                         <Device
-                            key = ""{0}""
+                            key=""{0}""
                             make=""{1}"" 
                             model=""{1}""
                             modelNumber=""{2}""

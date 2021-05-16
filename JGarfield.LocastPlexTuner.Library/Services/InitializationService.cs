@@ -1,8 +1,9 @@
-﻿using JGarfield.LocastPlexTuner.Library.Services.Contracts;
+﻿using JGarfield.LocastPlexTuner.Library.Domain.Exceptions;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
@@ -13,13 +14,29 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly IConfiguration _configuration;
 
-        public InitializationService(ILogger<InitializationService> logger, IConfiguration configuration)
+        private readonly ILocastService _locastService;
+
+        private readonly IStationsService _stationsService;
+
+        private readonly IEpg2XmlService _epg2XmlService;
+
+        public InitializationService(ILogger<InitializationService> logger, IConfiguration configuration, ILocastService locastService, IStationsService stationsService, IEpg2XmlService epg2XmlService)
         {
             _logger = logger;
             _configuration = configuration;
+            _locastService = locastService;
+            _stationsService = stationsService;
+            _epg2XmlService = epg2XmlService;
         }
 
-        public async Task VerifyEnvironmentAsync()
+        public void LogInitializationBanner()
+        {
+            _logger.LogInformation("=====================================");
+            _logger.LogInformation("    Locast Plex Tuner is starting    ");
+            _logger.LogInformation("=====================================");
+        }
+
+        public async Task VerifyEnvironmentAsync(CancellationToken cancellationToken)
         {
             //===== Does the AppData folder exist? If not, create it
             if (!Directory.Exists(Constants.APPLICATION_DATA_PATH))
@@ -51,10 +68,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 Directory.CreateDirectory(Constants.APPLICATION_CACHE_PATH);
             }
 
-            //===== Can we Read/Write/Delete in the AppData folder?
+            //===== Can we Read/Write/Delete files in the AppData folder?
             var testFilename = Path.Combine(Constants.APPLICATION_DATA_PATH, "initialization-service.tmp");
             var file = File.Create(testFilename);
-            await file.FlushAsync();
+            await file.FlushAsync(cancellationToken);
             file.Close();
             File.Delete(testFilename);
 
@@ -62,21 +79,43 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var username = _configuration.GetSection("LOCAST_USERNAME").Value;
             if (string.IsNullOrWhiteSpace(username))
             {
-                throw new ApplicationException("Could not find LOCAST_USERNAME specified in Settings or Environment Variables.");
+                throw new LocastPlexTunerDomainException("Could not find LOCAST_USERNAME specified in User Secrets or Environment Variables.");
             }
 
             var password = _configuration.GetSection("LOCAST_PASSWORD").Value;
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new ApplicationException("Could not find LOCAST_PASSWORD specified in Settings or Environment Variables.");
+                throw new LocastPlexTunerDomainException("Could not find LOCAST_PASSWORD specified in User Secrets or Environment Variables.");
             }
         }
 
-        public void LogInitializationBanner()
+        public async Task InitializeEnvironmentAsync()
         {
-            _logger.LogInformation("=====================================");
-            _logger.LogInformation("    Locast Plex Tuner is starting    ");
-            _logger.LogInformation("=====================================");
+            var zipCodeOverride = _configuration.GetSection("LOCAST_ZIPCODE").Value;
+            var zipCode = string.IsNullOrWhiteSpace(zipCodeOverride) ? null : zipCodeOverride;
+
+            var dmaLocation = await _locastService.GetDmaLocationAsync(zipCode);
+            if (dmaLocation == null)
+            {
+                throw new LocastPlexTunerDomainException("Unable to determine the Designated Market Area (DMA) for your location. Please visit https://www.locast.org/dma to verify your DMA and set it explicitly using the LOCAST_DMA configuration setting.");
+            }
+
+            if (!dmaLocation.Active)
+            {
+                throw new LocastPlexTunerDomainException($"The Designated Market Area (DMA) for your location is either not supported by Locast, or they are reporting it as inactive for some reason. Please visit https://www.locast.org/dma to verify your DMA ({dmaLocation.DMA} [{dmaLocation.Name}]).");
+            }
+
+            // TODO: Figure out how to support free accounts too
+            if (!await _locastService.IsActivelyDonatingUserAsync())
+            {
+                throw new LocastPlexTunerDomainException("LocastPlexTuner currently only works for actively donating Locast subscribers. This is due to the fact that we don't currently have the ability to deal with the advertisements that get injected for free subscribers. Please visit https://www.locast.org/donate, login, and give $5/mo to help support the service.");
+            }
+
+            _logger.LogInformation("Starting First time Stations refresh...");
+            await _stationsService.RefreshDmaStationsAndChannels(dmaLocation.DMA);
+
+            _logger.LogInformation("Starting First time EPG refresh...");
+            await _epg2XmlService.GenerateEpgFile();
         }
     }
 }
