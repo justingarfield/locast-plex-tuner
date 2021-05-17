@@ -64,9 +64,9 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
         #endregion Public Methods
 
         /// <summary>
-        /// Generates a new <see cref="Uri"/> representing the relative location to the most current FCC LMS Database file.
+        /// Generates a new <see cref="Uri"/> representing the absolute location to the most current FCC LMS Database file.
         /// </summary>
-        /// <returns>A new <see cref="Uri"/> representing the relative location to the most current FCC LMS Database file.</returns>
+        /// <returns>A new <see cref="Uri"/> representing the absolute location to the most current FCC LMS Database file.</returns>
         private Uri GetLmsFacilityDbUri()
         {
             // FCC operates with file modified timestamps and maintenance windows based in EST
@@ -75,7 +75,6 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             var fccDateTimeFormat = estDateTime.ToString(FCC_LMS_FACILITY_DB_DATEFORMAT);
 
             // The FCC LMS Facilities URI conforms to the following pattern: https://enterpriseefiling.fcc.gov/dataentry/api/download/dbfile/05-09-2021/facility.zip
-            // We only need the relative part here, as the FccClient itself has the baseUri for the API.
             return new Uri(FCC_LMS_BASE_URI, $"download/dbfile/{fccDateTimeFormat}/{FCC_LMS_FACILITY_DB_FILENAME}");
         }
     }

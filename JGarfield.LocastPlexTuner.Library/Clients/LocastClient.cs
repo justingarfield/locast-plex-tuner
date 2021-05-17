@@ -15,6 +15,8 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
 {
     public class LocastClient : ILocastClient
     {
+        private static readonly Uri LOCAST_API_BASE_URI = new Uri("https://api.locastnet.org/api/");
+
         private readonly IHttpClientFactory _clientFactory;
 
         private readonly IConfiguration _configuration;
@@ -30,7 +32,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
         public async Task<LocastDmaLocationDto> GetLocationByZipCodeAsync(string zipCode)
         {
             using var client = _clientFactory.CreateClient();
-            client.BaseAddress = Constants.LOCAST_API_BASE_URI;
+            client.BaseAddress = LOCAST_API_BASE_URI;
             
             return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/zip/{zipCode}");
         }
@@ -38,7 +40,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
         public async Task<LocastDmaLocationDto> GetLocationByIpAddressAsync(string ipAddress)
         {
             using var client = _clientFactory.CreateClient();
-            client.BaseAddress = Constants.LOCAST_API_BASE_URI;
+            client.BaseAddress = LOCAST_API_BASE_URI;
             client.DefaultRequestHeaders.Add("client_ip", ipAddress);
             
             return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/ip");
@@ -47,7 +49,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
         public async Task<LocastDmaLocationDto> GetLocationByLatLongAsync(double latitude, double longitude)
         {
             using var client = _clientFactory.CreateClient();
-            client.BaseAddress = Constants.LOCAST_API_BASE_URI;
+            client.BaseAddress = LOCAST_API_BASE_URI;
 
             return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/{latitude}/{longitude}");
         }
@@ -57,7 +59,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             await PerformLoginIfNeededAsync();
 
             using var client = _clientFactory.CreateClient();
-            client.BaseAddress = Constants.LOCAST_API_BASE_URI;
+            client.BaseAddress = LOCAST_API_BASE_URI;
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _loginToken);
 
@@ -69,7 +71,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             await PerformLoginIfNeededAsync();
 
             using var client = _clientFactory.CreateClient();
-            client.BaseAddress = Constants.LOCAST_API_BASE_URI;
+            client.BaseAddress = LOCAST_API_BASE_URI;
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _loginToken);
 
@@ -89,7 +91,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             await PerformLoginIfNeededAsync();
 
             using var client = _clientFactory.CreateClient();
-            client.BaseAddress = Constants.LOCAST_API_BASE_URI;
+            client.BaseAddress = LOCAST_API_BASE_URI;
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _loginToken);
 
@@ -112,7 +114,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             var password = _configuration.GetSection("LOCAST_PASSWORD").Value;
 
             using var client = _clientFactory.CreateClient();
-            client.BaseAddress = Constants.LOCAST_API_BASE_URI;
+            client.BaseAddress = LOCAST_API_BASE_URI;
 
             var response = await client.PostAsJsonAsync<dynamic>($"user/login", new { username = username, password = password });
             var loginResponse = await response.Content.ReadFromJsonAsync<LocastUserLoginResponseDto>();

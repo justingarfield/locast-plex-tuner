@@ -94,10 +94,27 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             {
                 throw new LocastPlexTunerDomainException("Could not find LOCAST_PASSWORD specified in User Secrets or Environment Variables.");
             }
+
+            //===== Did we find a ffmpeg binary path in the built configuration?
+            var ffmpegBinaryPath = _configuration.GetSection("FFMPEG_BINARY").Value;
+            if (string.IsNullOrWhiteSpace(ffmpegBinaryPath))
+            {
+                throw new LocastPlexTunerDomainException("Could not find FFMPEG_BINARY specified in User Secrets or Environment Variables. A local copy of FFMPEG is required for this to work properly.");
+            }
+
+            if (!File.Exists(ffmpegBinaryPath))
+            {
+                throw new LocastPlexTunerDomainException($"The provided path ({ffmpegBinaryPath}) in the FFMPEG_BINARY configuration value could not be found.");
+            }
         }
 
         public async Task InitializeEnvironmentAsync()
         {
+            // Should be safe to get this since Init checks for existence before-hand.
+            var ffmpegBinaryPath = _configuration.GetSection("FFMPEG_BINARY").Value;
+            _applicationContext.FfmpegBinaryPath = ffmpegBinaryPath;
+
+            // Allow user to override Locast DMA ZipCode
             var zipCodeOverride = _configuration.GetSection("LOCAST_ZIPCODE").Value;
             var zipCode = string.IsNullOrWhiteSpace(zipCodeOverride) ? null : zipCodeOverride;
 

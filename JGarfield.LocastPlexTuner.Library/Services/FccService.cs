@@ -145,6 +145,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                                         .ReadFromFile(extractionPath, Encoding.ASCII)
                                         .ToList();
 
+            // TODO: Investigate if we still need the other types. DTV seems to work for everything in my current DMA (506)
             var results = csvMappingResults
                     .Where(_ => 
                         _.IsValid 
@@ -169,14 +170,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private bool LmsFacilityDbExists()
         {
-            var downloadsPath = Path.Combine(Constants.APPLICATION_DATA_PATH, "downloads");
-            var filename = Path.Combine(downloadsPath, "facility.zip");
+            var filename = Path.Combine(Constants.APPLICATION_DOWNLOADED_FILES_PATH, "facility.zip");
             return File.Exists(filename);
         }
 
         private DateTimeOffset GetLocalLmsFacilityDbModifiedTime()
         {
-            var filename = Path.Combine(Constants.APPLICATION_DATA_PATH, "facility.zip");
+            var filename = Path.Combine(Constants.APPLICATION_DOWNLOADED_FILES_PATH, "facility.zip");
             return File.GetLastWriteTimeUtc(filename);
         }
 
