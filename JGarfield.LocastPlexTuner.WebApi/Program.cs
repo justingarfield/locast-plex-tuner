@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,16 +9,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
     {
         static async Task Main(string[] args)
         {
-            using IHost host = CreateHostBuilder(args)
-                .ConfigureAppConfiguration((hostContext, builder) =>
-                {
-                    if (hostContext.HostingEnvironment.IsDevelopment())
-                    {
-                        builder.AddUserSecrets<Program>();
-                    }
-                })
-                .Build();
-
+            using IHost host = CreateHostBuilder(args).Build();
             await host.RunAsync();
         }
 

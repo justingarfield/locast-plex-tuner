@@ -28,12 +28,12 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         #region Private Members
 
         /// <summary>
-        /// 
+        /// The <see cref="ILogger{T}"/> implementation used for logging.
         /// </summary>
         private readonly ILogger<FccService> _logger;
 
         /// <summary>
-        /// 
+        /// The <see cref="IFccClient"/> implementation used to make calls to the FCC LMS endpoints.
         /// </summary>
         private readonly IFccClient _fccClient;
 
@@ -42,10 +42,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         #region Constructor
 
         /// <summary>
-        /// 
+        /// Instantiates a new <see cref="FccService"/> using the provided <see cref="ILogger{T}"/> and <see cref="IFccClient"/> implementations.
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="fccClient"></param>
+        /// <param name="logger">The <see cref="ILogger{T}"/> implementation used for logging.</param>
+        /// <param name="fccClient">The <see cref="IFccClient"/> implementation used to make calls to the FCC LMS endpoints.</param>
         public FccService(ILogger<FccService> logger, IFccClient fccClient) {
             _logger = logger;
             _fccClient = fccClient;

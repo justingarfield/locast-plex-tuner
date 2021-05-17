@@ -19,6 +19,8 @@ namespace JGarfield.LocastPlexTuner.Library
 
         public Uri BaseUri {
             get {
+                // TODO: Need to abstract this out another layer..what if library is used outside of a WebApi? (e.g. Console app)
+                //       Although...capabilities that use this also can't function properly without an address to bind to.
                 var firstAddress = _server.Features.Get<IServerAddressesFeature>()?.Addresses.First();
                 return new Uri(firstAddress);
             }

@@ -41,7 +41,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 var videoData = new byte[65536];
                 var bytesRead = await process.StandardOutput.BaseStream.ReadAsync(videoData);
 
-                while (!httpContext.RequestAborted.IsCancellationRequested)
+                while (!httpContext.RequestAborted.IsCancellationRequested) // Triggered when someone stops the stream over in Plex
                 {
                     if (bytesRead == 0)
                     {
@@ -68,14 +68,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 // can use quite a bit of system resources over time.
                 if (process != null)
                 {
-                    await process.WaitForExitAsync(httpContext.RequestAborted);
+                    // Can't pass-in the CancellationToken from above, as it could possibly be in a Cancelled state
                     process.Close();
                     process.Dispose();
                 }
-
-                // Flush any remaining bytes out of the Response Body that may be sitting in 
-                // the underlying buffers. (not 100% sure if this is needed, but just to be safe)
-                await httpContext.Response.Body.FlushAsync(httpContext.RequestAborted);
 
                 // Trying to make really damn sure the Response Stream gets closed.
                 httpContext.Response.Body.Close();

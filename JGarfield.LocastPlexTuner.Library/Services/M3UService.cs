@@ -26,10 +26,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         private const string M3U_TRACK_INFORMATION_DIRECTIVE = "#EXTINF";
 
         /// <summary>
-        /// The Stations Service instance used to pull all Stations and Channels for a particular DMA.
+        /// The <see cref="IStationsService"/> implementation used to pull all Stations and Channels for a particular DMA.
         /// </summary>
         private readonly IStationsService _stationsService;
 
+        /// <summary>
+        /// The <see cref="ApplicationContext"/> instance used for Application-level state information.
+        /// </summary>
         private readonly ApplicationContext _applicationContext;
 
         #endregion Private Members
