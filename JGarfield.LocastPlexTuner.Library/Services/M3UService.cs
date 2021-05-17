@@ -53,10 +53,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         /// <inheritdoc />
         public async Task<string> GetChannelsM3U()
         {
-            var base_url = "localhost:6077";
-            var xmlTvUrl = $"http://{base_url}/xmltv.xml";
+            var baseUri = _applicationContext.BaseUri;
+            var xmlTvUrl = $"{baseUri}xmltv.xml";
 
-            var stations = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
+            var stations = await _stationsService.GetDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
 
             var sb = new StringBuilder();
             sb.AppendLine($"{M3U_FILE_HEADER_DIRECTIVE} url-tvg=\"{xmlTvUrl}\" x-tvg-url=\"{xmlTvUrl}\"");
@@ -66,7 +66,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 var logoText = string.IsNullOrWhiteSpace(station.Value.logoUrl) ? string.Empty : $"tvg-logo=\"{station.Value.logoUrl}\"";
 
                 sb.AppendLine($"{M3U_TRACK_INFORMATION_DIRECTIVE}:-1 channelID=\"{station.Key}\" tvg-chno=\"{station.Value.channel}\" tvg-name=\"{station.Value.friendlyName}\" tvg-id=\"{station.Key}\" {logoText} group-title=\"LocastPlexTuner\",{station.Value.friendlyName}");
-                sb.AppendLine($"http://{base_url}/watch/{station.Key}");
+                sb.AppendLine($"{baseUri}watch/{station.Key}");
             }
 
             return sb.ToString();

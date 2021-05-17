@@ -46,12 +46,14 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         public async Task<IActionResult> GetRmgIdentification()
         {
             var rmgIdentification = await _tunerService.GetRmgIdentification();
-            return new ContentResult
+            return Ok(rmgIdentification);
+
+            /*return new ContentResult
             {
                 Content = rmgIdentification,
                 ContentType = "application/xml",
                 StatusCode = 200
-            };
+            };*/
         }
 
         [Route("/device.xml")]
@@ -150,7 +152,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
 
             decimal.TryParse(channelNo, out decimal channel);
 
-            var stationId = await _stationsService.GetStationIdByChannel(_applicationContext.DMA.DMA, channel);
+            var stationId = await _stationsService.GetStationIdByChannel(_applicationContext.CurrentDMA.DMA, channel);
 
             await _tunerService.DoTuning(stationId);
         }
@@ -159,7 +161,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> XmlTv()
         {
-            var content = await _epg2XmlService.GetEpgFile(_applicationContext.DMA.DMA);
+            var content = await _epg2XmlService.GetEpgFile(_applicationContext.CurrentDMA.DMA);
             return new ContentResult
             {
                 Content = content,
@@ -258,7 +260,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
                 {
                     Response.OnCompleted(async () =>
                     {
-                        await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.DMA.DMA);
+                        await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
                         await _tunerService.StopAllScanningForAllTuners();
                     });
                 }
@@ -310,7 +312,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             {
                 Response.OnCompleted(async () =>
                 {
-                    await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.DMA.DMA);
+                    await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
                     await _tunerService.StopAllScanningForAllTuners();
                 });
             }

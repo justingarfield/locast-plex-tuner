@@ -26,7 +26,7 @@
                             <UDN>uuid:{2}</UDN>
                             <serviceList>
                                 <service>
-                                    <URLBase>http://{3}</URLBase>
+                                    <URLBase>{3}</URLBase>
                                     <serviceType>urn:plex-tv:service:MediaGrabber:1</serviceType>
                                     <serviceId>urn:plex-tv:serviceId:MediaGrabber</serviceId>
                                 </service>
@@ -50,7 +50,7 @@
                             status=""alive"" 
                             title=""{1}"" 
                             tuners=""{3}"" 
-                            uri=""http://{4}"" 
+                            uri=""{4}"" 
                             uuid=""device://tv.plex.grabbers.locastplextuner/{0}"" 
                             interface=""network"" />
                     </MediaContainer>";
@@ -66,7 +66,7 @@
                             status=""alive""
                             title=""{1} ({4})""
                             tuners=""{3}""
-                            uri=""http://{4}""
+                            uri=""{4}""
                             uuid=""device://tv.plex.grabbers.locastplextuner/{0}"">
                                 {5}
                         </Device>

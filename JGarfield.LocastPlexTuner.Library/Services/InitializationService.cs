@@ -1,8 +1,12 @@
 ﻿using JGarfield.LocastPlexTuner.Library.Domain.Exceptions;
 using JGarfield.LocastPlexTuner.Library.Services.Contracts;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -103,7 +107,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 throw new LocastPlexTunerDomainException("Unable to determine the Designated Market Area (DMA) for your location. Please visit https://www.locast.org/dma to verify your DMA and set it explicitly using the LOCAST_DMA configuration setting.");
             }
 
-            _applicationContext.DMA = dmaLocation;
+            _applicationContext.CurrentDMA = dmaLocation;
 
             if (!dmaLocation.Active)
             {

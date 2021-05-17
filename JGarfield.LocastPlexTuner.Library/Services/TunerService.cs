@@ -63,7 +63,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public Task<string> GetRmgDeviceDiscoverXml()
         {
-            var tokenizedXml = string.Format(TunerXmlTemplates.xmlRmgDeviceDiscover, Constants.uuid, Constants.reporting_friendly_name, Constants.reporting_model, Constants.tuner_count, Constants.base_url);
+            var tokenizedXml = string.Format(TunerXmlTemplates.xmlRmgDeviceDiscover, Constants.uuid, Constants.reporting_friendly_name, Constants.reporting_model, Constants.tuner_count, _applicationContext.BaseUri);
             return Task.FromResult(tokenizedXml);
         }
 
@@ -80,7 +80,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 Constants.reporting_friendly_name,
                 Constants.reporting_model,
                 Constants.uuid,
-                Constants.base_url
+                _applicationContext.BaseUri
             );
             return Task.FromResult(tokenizedXml);
         }
@@ -96,8 +96,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 FirmwareVersion = Constants.reporting_firmware_ver,
                 DeviceID = Constants.uuid,
                 DeviceAuth = "LocastPlexTuner",
-                BaseURL = $"http://{Constants.base_url}",
-                LineupURL = $"http://{Constants.base_url}/lineup.json",
+                BaseURL = $"{_applicationContext.BaseUri}",
+                LineupURL = $"{_applicationContext.BaseUri}lineup.json",
             };
 
             return await Task.FromResult(discover);
@@ -134,13 +134,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         {
             var channelLineup = new List<LineupItem>();
 
-            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
+            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
             foreach (var dmaStationsAndChannel in dmaStationsAndChannels)
             {
                 channelLineup.Add(new LineupItem {
                     GuideNumber = $"{dmaStationsAndChannel.Value.channel}",
                     GuideName = dmaStationsAndChannel.Value.friendlyName,
-                    URL = $"http://{Constants.base_url}/watch/{dmaStationsAndChannel.Key}"
+                    URL = $"{_applicationContext.BaseUri}watch/{dmaStationsAndChannel.Key}"
                 });
             }
 
@@ -154,7 +154,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var stationStreamUri = await _locastService.GetStationStreamUri(stationId);
             _logger.LogTrace($"Using a {nameof(stationStreamUri)} value of: {stationStreamUri}");
 
-            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
+            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
             _logger.LogTrace($"Using {nameof(dmaStationsAndChannels)} value of: {dmaStationsAndChannels}");
 
             var idleTuner = GetIdleTuner();
@@ -228,7 +228,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public async Task<MediaContainer> GetRmgDeviceChannelItemsXml()
         {
-            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.DMA.DMA);
+            var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
 
             List<Channel> channels = new List<Channel>();
             foreach (var dmaStationsAndChannel in dmaStationsAndChannels)
@@ -266,7 +266,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 sb.Append(tokenizedXml);
             }
 
-            tokenizedXml = string.Format(TunerXmlTemplates.xmlRmgDeviceIdentity, Constants.uuid, Constants.reporting_friendly_name, Constants.reporting_model, Constants.tuner_count, Constants.base_url, sb.ToString());
+            tokenizedXml = string.Format(TunerXmlTemplates.xmlRmgDeviceIdentity, Constants.uuid, Constants.reporting_friendly_name, Constants.reporting_model, Constants.tuner_count, _applicationContext.BaseUri, sb.ToString());
             return await Task.FromResult(tokenizedXml);
         }
 

@@ -35,8 +35,6 @@ namespace JGarfield.LocastPlexTuner.Library
 
         public const string uuid = "xasudfds";
 
-        public const string base_url = "localhost:6077";
-
         public const string reporting_firmware_name = "locastplextuner";
 
         public const int tuner_count = 4;
