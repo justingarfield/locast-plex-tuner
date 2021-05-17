@@ -99,42 +99,26 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         #region Private Methods
 
-        private Uri GetLmsFacilityDbUri()
-        {
-            // FCC operates with file modified timestamps and maintenance windows based in EST
-            var estTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-            var estDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, estTimeZone);
-
-            var fccDateTimeFormat = estDateTime.ToString(Constants.FCC_LMS_FACILITY_DB_DATEFORMAT);
-
-            // The FCC LMS Facilities URI conforms to the following pattern: https://enterpriseefiling.fcc.gov/dataentry/api/download/dbfile/05-09-2021/facility.zip
-            var lmsFacilityDbUri = new Uri(Constants.FCC_LMS_BASE_URI, $"download/dbfile/{fccDateTimeFormat}/{Constants.FCC_LMS_FACILITY_DB_FILENAME}");
-
-            return lmsFacilityDbUri;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private async Task DownloadLmsFacilityDb()
         {
             _logger.LogDebug($"Entering {nameof(DownloadLmsFacilityDb)}");
 
-            var uri = GetLmsFacilityDbUri();
-
-            var stream = await _fccClient.GetLmsFacilityDbAsync(uri);
-
-            var filename = Path.Combine(Constants.APPLICATION_DATA_PATH, "downloads/facility.zip");
-
-            await using var fs = File.Create(filename);
-
-            stream.Seek(0, SeekOrigin.Begin);
-            stream.CopyTo(fs);
+            using (var fccLmsDbFileStream = File.Create(Path.Combine(Constants.APPLICATION_DOWNLOADED_FILES_PATH, "facility.zip")))
+            {
+                await _fccClient.FetchLmsFacilityDbAsync(fccLmsDbFileStream);
+            }
 
             _logger.LogDebug($"Leaving {nameof(DownloadLmsFacilityDb)}");
         }
 
         private async Task ExtractLmsFacilityDbZipAsync()
         {
-            var zipFilename = Path.Combine(Constants.APPLICATION_DATA_PATH, "downloads/facility.zip");
-            var extractionPath = Path.Combine(Constants.APPLICATION_DATA_PATH, "extracted");
+            var zipFilename = Path.Combine(Constants.APPLICATION_DOWNLOADED_FILES_PATH, "facility.zip");
+            var extractionPath = Path.Combine(Constants.APPLICATION_EXTRACTED_FILES_PATH);
 
             var zipArchive = ZipFile.OpenRead(zipFilename);
             var zipArchiveEntry = zipArchive.GetEntry("facility.dat");

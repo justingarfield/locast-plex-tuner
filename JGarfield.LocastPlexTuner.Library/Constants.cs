@@ -13,12 +13,6 @@ namespace JGarfield.LocastPlexTuner.Library
 
         public static readonly Uri IPINFO_API_BASE_URI = new Uri("https://ipinfo.io/ip");
 
-        public static readonly Uri FCC_LMS_BASE_URI = new Uri("https://enterpriseefiling.fcc.gov/dataentry/api/");
-
-        public const string FCC_LMS_FACILITY_DB_DATEFORMAT = "MM-dd-yyyy";
-
-        public const string FCC_LMS_FACILITY_DB_FILENAME = "facility.zip";
-
         public static readonly string APPLICATION_DATA_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LocastPlexTuner");
 
         public static readonly string APPLICATION_DOWNLOADED_FILES_PATH = Path.Combine(APPLICATION_DATA_PATH, "downloads");

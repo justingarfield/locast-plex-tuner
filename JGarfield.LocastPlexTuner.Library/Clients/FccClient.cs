@@ -15,6 +15,12 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
     {
         #region Private Members
 
+        private static readonly Uri FCC_LMS_BASE_URI = new Uri("https://enterpriseefiling.fcc.gov/dataentry/api/");
+
+        private const string FCC_LMS_FACILITY_DB_DATEFORMAT = "MM-dd-yyyy";
+
+        private const string FCC_LMS_FACILITY_DB_FILENAME = "facility.zip";
+
         /// <summary>
         /// The <see cref="IHttpClientFactory"/> implementation used to create new <see cref="HttpClient"/> instances.
         /// </summary>
@@ -40,20 +46,37 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="uri"></param>
+        /// <param name="relativeUri"></param>
         /// <returns></returns>
-        public async Task<Stream> GetLmsFacilityDbAsync(Uri uri)
+        public async Task FetchLmsFacilityDbAsync(FileStream fileStream)
         {
             using var client = _clientFactory.CreateClient();
 
-            var response = await client.GetAsync(uri);
+            var fccLmsDatabaseUri = GetLmsFacilityDbUri();
+
+            var response = await client.GetAsync(fccLmsDatabaseUri);
 
             response.EnsureSuccessStatusCode();
 
-            // TODO: Uhhhh, is this safe? Caller will have to Close stream.
-            return await response.Content.ReadAsStreamAsync();
+            await response.Content.CopyToAsync(fileStream);
         }
 
         #endregion Public Methods
+
+        /// <summary>
+        /// Generates a new <see cref="Uri"/> representing the relative location to the most current FCC LMS Database file.
+        /// </summary>
+        /// <returns>A new <see cref="Uri"/> representing the relative location to the most current FCC LMS Database file.</returns>
+        private Uri GetLmsFacilityDbUri()
+        {
+            // FCC operates with file modified timestamps and maintenance windows based in EST
+            var estTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            var estDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, estTimeZone);
+            var fccDateTimeFormat = estDateTime.ToString(FCC_LMS_FACILITY_DB_DATEFORMAT);
+
+            // The FCC LMS Facilities URI conforms to the following pattern: https://enterpriseefiling.fcc.gov/dataentry/api/download/dbfile/05-09-2021/facility.zip
+            // We only need the relative part here, as the FccClient itself has the baseUri for the API.
+            return new Uri(FCC_LMS_BASE_URI, $"download/dbfile/{fccDateTimeFormat}/{FCC_LMS_FACILITY_DB_FILENAME}");
+        }
     }
 }

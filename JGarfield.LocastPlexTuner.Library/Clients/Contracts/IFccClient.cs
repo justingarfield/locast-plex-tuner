@@ -14,8 +14,8 @@ namespace JGarfield.LocastPlexTuner.Library.Clients.Contracts
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="uri"></param>
+        /// <param name="fileStream"></param>
         /// <returns></returns>
-        Task<Stream> GetLmsFacilityDbAsync(Uri uri);
+        Task FetchLmsFacilityDbAsync(FileStream fileStream);
     }
 }
