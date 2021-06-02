@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TimeZoneConverter;
 
 namespace JGarfield.LocastPlexTuner.Library.Clients
 {
@@ -70,7 +71,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
         private Uri GetLmsFacilityDbUri()
         {
             // FCC operates with file modified timestamps and maintenance windows based in EST
-            var estTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            var estTimeZone = TZConvert.GetTimeZoneInfo("Eastern Standard Time"); // Need to use TZConvert here since Linux distro Timezones differ using IANA
             var estDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, estTimeZone);
             var fccDateTimeFormat = estDateTime.ToString(FCC_LMS_FACILITY_DB_DATEFORMAT);
 

@@ -1,5 +1,6 @@
 ﻿using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -13,10 +14,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly ApplicationContext _applicationContext;
 
-        public HttpFfmpegService(ILogger<HttpFfmpegService> logger, ApplicationContext applicationContext)
+        private readonly IConfiguration _configuration;
+
+        public HttpFfmpegService(ILogger<HttpFfmpegService> logger, ApplicationContext applicationContext, IConfiguration configuration)
         {
             _logger = logger;
             _applicationContext = applicationContext;
+            _configuration = configuration;
         }
 
         public async Task StreamToHttpResponseAsync(Uri streamUri, HttpContext httpContext)
@@ -25,7 +29,16 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             try
             {
                 var processStartInfo = new ProcessStartInfo();
-                processStartInfo.FileName = _applicationContext.FfmpegBinaryPath;
+
+                if (_applicationContext.RunningInContainer)
+                {
+                    // Should be able to just directly reference ffmpeg when we're in a container since it gets installed globally
+                    processStartInfo.FileName = "ffmpeg";
+                }
+                else
+                {
+                    processStartInfo.FileName = _applicationContext.FfmpegBinaryPath;
+                }
 
                 // Notes for ffmpeg arguments:
                 //  -c copy             = Copy all streams as-is (we don't need to re-encode, just copy and pass it through)
@@ -40,7 +53,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 processStartInfo.RedirectStandardOutput = true;
 
                 process = Process.Start(processStartInfo);
-
+                
                 var videoData = new byte[65536];
                 var bytesRead = await process.StandardOutput.BaseStream.ReadAsync(videoData);
 

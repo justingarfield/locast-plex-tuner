@@ -19,10 +19,8 @@
 
         /// <summary>
         /// Any Announcements related to the DMA Location.
-        /// 
-        /// TODO: What sort of Announcements? What is the shape? Array of???? String?? Object??
         /// </summary>
-        public string[] announcements { get; set; }
+        public LocastDmaAnnouncement[] announcements { get; set; }
 
         /// <summary>
         /// A URI pointing to a 1920 x 1080 sized picture the represents the DMA Location.

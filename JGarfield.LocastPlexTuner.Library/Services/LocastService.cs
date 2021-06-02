@@ -49,7 +49,6 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 _dmaLocation = new DmaLocation
                 {
                     Active = locastDmaLocationDto.active,
-                    Announcements = locastDmaLocationDto.announcements,
                     DMA = locastDmaLocationDto.DMA,
                     LargeUrl = locastDmaLocationDto.large_url,
                     Latitude = locastDmaLocationDto.latitude,
@@ -58,6 +57,20 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                     PublicIP = locastDmaLocationDto.publicIP,
                     SmallUrl = locastDmaLocationDto.small_url
                 };
+
+                if (locastDmaLocationDto.announcements.Length > 0)
+                {
+                    foreach (var announcement in locastDmaLocationDto.announcements)
+                    {
+                        _dmaLocation.Announcements.Add(new DmaLocationAnnouncement
+                        {
+                            Title = announcement.title,
+                            MessageHtml = announcement.messageHtml,
+                            MessageText = announcement.messageText,
+                            MessageType = announcement.messageType
+                        });
+                    }
+                }
 
                 _logger.LogInformation($"Got location as {_dmaLocation.Name} - DMA {_dmaLocation.DMA} - Lat\\Lon {_dmaLocation.Latitude}\\{_dmaLocation.Longitude}.");
             }

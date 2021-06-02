@@ -1,4 +1,6 @@
-﻿namespace JGarfield.LocastPlexTuner.Library.Domain
+﻿using System.Collections.Generic;
+
+namespace JGarfield.LocastPlexTuner.Library.Domain
 {
     /// <summary>
     /// Designated Market Areas
@@ -18,10 +20,8 @@
 
         /// <summary>
         /// Any Announcements related to the DMA Location.
-        /// 
-        /// TODO: What sort of Announcements? What is the shape? Array of???? String?? Object??
         /// </summary>
-        public string[] Announcements { get; set; }
+        public List<DmaLocationAnnouncement> Announcements { get; set; }
 
         /// <summary>
         /// A URI pointing to a 1920 x 1080 sized picture the reprensets the DMA Location.

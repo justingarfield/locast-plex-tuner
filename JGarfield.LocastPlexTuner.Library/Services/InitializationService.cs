@@ -95,14 +95,14 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 throw new LocastPlexTunerDomainException("Could not find LOCAST_PASSWORD specified in User Secrets or Environment Variables.");
             }
 
-            //===== Did we find a ffmpeg binary path in the built configuration?
+            //===== Can we find a valid ffmpeg binary?
             var ffmpegBinaryPath = _configuration.GetSection("FFMPEG_BINARY").Value;
-            if (string.IsNullOrWhiteSpace(ffmpegBinaryPath))
+            if (!_applicationContext.RunningInContainer && string.IsNullOrWhiteSpace(ffmpegBinaryPath))
             {
                 throw new LocastPlexTunerDomainException("Could not find FFMPEG_BINARY specified in User Secrets or Environment Variables. A local copy of FFMPEG is required for this to work properly.");
             }
 
-            if (!File.Exists(ffmpegBinaryPath))
+            if (!_applicationContext.RunningInContainer && !File.Exists(ffmpegBinaryPath))
             {
                 throw new LocastPlexTunerDomainException($"The provided path ({ffmpegBinaryPath}) in the FFMPEG_BINARY configuration value could not be found.");
             }
