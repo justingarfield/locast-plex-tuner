@@ -168,7 +168,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         }
     }
 
-    public class Stuff
+    public class EpgStationChannel
     {
         public int sid { get; set; }
 

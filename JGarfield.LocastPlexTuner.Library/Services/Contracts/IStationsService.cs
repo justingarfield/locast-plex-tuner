@@ -7,7 +7,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
     {
         Task GenerateDmaStationsAndChannelsFile(string dma);
 
-        Task<Dictionary<long, Stuff>> GetDmaStationsAndChannels(string dma);
+        Task<Dictionary<long, EpgStationChannel>> GetDmaStationsAndChannels(string dma);
 
         Task RefreshDmaStationsAndChannels(string dma);
 

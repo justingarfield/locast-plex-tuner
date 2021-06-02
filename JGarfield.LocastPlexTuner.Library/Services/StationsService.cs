@@ -9,14 +9,11 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 {
     public class StationsService : IStationsService
     {
-        private readonly IFccService _fccService;
-
         private readonly ILocastService _locastService;
 
-        public StationsService(IFccService fccService, ILocastService locastService)
+        public StationsService(ILocastService locastService)
         {
             _locastService = locastService;
-            _fccService = fccService;
         }
 
         public async Task<long> GetStationIdByChannel(string dma, decimal channel)
@@ -27,7 +24,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public async Task RefreshDmaStationsAndChannels(string dma)
         {
-            await _fccService.GetFccStationsAsync();
+            // await _fccService.GetFccStationsAsync();
             await GenerateDmaStationsAndChannelsFile(dma);
         }
 
@@ -35,27 +32,27 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         {
             var epgStations = await _locastService.GetEpgStationsForDmaAsync(dma);
 
-            var finalizedEpgStations = new Dictionary<long, Stuff>();
+            var finalizedEpgStations = new Dictionary<long, EpgStationChannel>();
 
             foreach (var epgStation in epgStations)
             {
-                var thing = new Stuff();
-                thing.callSign = epgStation.name;
+                var epgStationChannel = new EpgStationChannel();
+                epgStationChannel.callSign = epgStation.name;
 
                 if (!string.IsNullOrWhiteSpace(epgStation.logo226Url))
                 {
-                    thing.logoUrl = epgStation.logo226Url;
+                    epgStationChannel.logoUrl = epgStation.logo226Url;
                 }
                 else if (!string.IsNullOrWhiteSpace(epgStation.logoUrl))
                 {
-                    thing.logoUrl = epgStation.logoUrl;
+                    epgStationChannel.logoUrl = epgStation.logoUrl;
                 }
 
                 if (decimal.TryParse(epgStation.callSign.Split()[0], out decimal channel))
                 {
-                    thing.channel = channel;
-                    thing.friendlyName = epgStation.callSign.Split()[1];
-                    finalizedEpgStations.Add(epgStation.id, thing);
+                    epgStationChannel.channel = channel;
+                    epgStationChannel.friendlyName = epgStation.callSign.Split()[1];
+                    finalizedEpgStations.Add(epgStation.id, epgStationChannel);
                     continue;
                 }
 
@@ -63,7 +60,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 // DetectCallSign(epgStation.callSign);
                 // DetectCallSign(epgStation.name);
 
-                finalizedEpgStations.Add(epgStation.id, thing);
+                finalizedEpgStations.Add(epgStation.id, epgStationChannel);
             }
 
             var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma}_stations.json");
@@ -74,14 +71,14 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             }
         }
 
-        public async Task<Dictionary<long, Stuff>> GetDmaStationsAndChannels(string dma)
+        public async Task<Dictionary<long, EpgStationChannel>> GetDmaStationsAndChannels(string dma)
         {
             var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma}_stations.json");
 
-            Dictionary<long, Stuff> result;
+            Dictionary<long, EpgStationChannel> result;
             using (var fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
-                result = await JsonSerializer.DeserializeAsync<Dictionary<long, Stuff>>(fs);
+                result = await JsonSerializer.DeserializeAsync<Dictionary<long, EpgStationChannel>>(fs);
             }
 
             return result;

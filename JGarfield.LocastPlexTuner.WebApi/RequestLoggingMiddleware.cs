@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -25,10 +26,12 @@ namespace JGarfield.LocastPlexTuner.WebApi
             }
             finally
             {
+                var feature = context.Features.Get<IHttpConnectionFeature>();
                 var divider = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
                 var logLine = $"[{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz")}] Request {context.Request?.Method} {context.Request?.Path.Value} => {context.Response?.StatusCode}";
                 _logger.LogWarning(divider);
                 _logger.LogWarning(logLine);
+                _logger.LogWarning($"{feature.RemoteIpAddress}");
                 _logger.LogWarning(divider);
             }
         }
