@@ -66,7 +66,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             return await client.GetFromJsonAsync<LocastUserDetailsDto>($"user/me");
         }
 
-        public async Task<List<LocastEpgStationDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null)
+        public async Task<List<LocastChannelDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null)
         {
             await PerformLoginIfNeededAsync();
 
@@ -78,11 +78,11 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             if (startTime.HasValue)
             {
                 var isoStartTime = startTime.Value.DateTime.ToString("yyyy-MM-ddTHH:mm:sszzz");
-                return await client.GetFromJsonAsync<List<LocastEpgStationDto>>($"watch/epg/{dma}?startTime={isoStartTime}");
+                return await client.GetFromJsonAsync<List<LocastChannelDto>>($"watch/epg/{dma}?startTime={isoStartTime}");
             }
             else
             {
-                return await client.GetFromJsonAsync<List<LocastEpgStationDto>>($"watch/epg/{dma}");
+                return await client.GetFromJsonAsync<List<LocastChannelDto>>($"watch/epg/{dma}");
             }
         }
 

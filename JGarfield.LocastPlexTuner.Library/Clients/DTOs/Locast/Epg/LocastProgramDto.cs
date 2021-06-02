@@ -3,7 +3,7 @@
     /// <summary>
     /// This is currently a superset of all EntityTypes.
     /// </summary>
-    public class LocastEpgListingDto
+    public class LocastProgramDto
     {
         /// <summary>
         /// Episode | Sports | Show | Movie

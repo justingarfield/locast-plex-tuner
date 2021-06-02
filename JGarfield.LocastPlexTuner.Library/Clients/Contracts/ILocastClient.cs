@@ -18,7 +18,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients.Contracts
 
         Task<LocastUserDetailsDto> GetUserDetails();
 
-        Task<List<LocastEpgStationDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null);
+        Task<List<LocastChannelDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null);
 
         Task<LocastStationDto> GetStationAsync(long stationId, double latitude, double longitude);
 

@@ -12,7 +12,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
 
         Task<bool> IsActivelyDonatingUserAsync();
 
-        Task<List<LocastEpgStationDto>> GetEpgStationsForDmaAsync(string dma, DateTimeOffset? startTime = null);
+        Task<List<LocastChannelDto>> GetEpgStationsForDmaAsync(string dma, DateTimeOffset? startTime = null);
 
         Task<Uri> GetStationStreamUri(long stationId);
     }

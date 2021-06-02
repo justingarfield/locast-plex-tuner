@@ -242,7 +242,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             xmlDoc.Save(filename);
         }
 
-        private async Task<List<LocastEpgStationDto>> GetCached(DateTimeOffset cacheFileDate, string dma)
+        private async Task<List<LocastChannelDto>> GetCached(DateTimeOffset cacheFileDate, string dma)
         {
             var dateString = cacheFileDate.ToString("yyyy-MM-dd");
             var cachePath = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dateString}.json");
@@ -251,7 +251,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             {
                 using (var fs = File.Open(cachePath, FileMode.Open, FileAccess.Read))
                 {
-                    var locastEpgStations = await JsonSerializer.DeserializeAsync<List<LocastEpgStationDto>>(fs);
+                    var locastEpgStations = await JsonSerializer.DeserializeAsync<List<LocastChannelDto>>(fs);
                     return locastEpgStations;
                 }
             }

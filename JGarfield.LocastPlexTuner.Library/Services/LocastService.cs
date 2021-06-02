@@ -78,7 +78,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             return _dmaLocation;
         }
 
-        public async Task<List<LocastEpgStationDto>> GetEpgStationsForDmaAsync(string dma, DateTimeOffset? startTime = null)
+        public async Task<List<LocastChannelDto>> GetEpgStationsForDmaAsync(string dma, DateTimeOffset? startTime = null)
         {
             var epgResponse = await _locastClient.GetEpgForDmaAsync(dma, startTime);
             _logger.LogInformation($"Found {epgResponse.Count} stations for DMA {dma}.");

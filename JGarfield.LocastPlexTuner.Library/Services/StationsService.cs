@@ -9,9 +9,16 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 {
     public class StationsService : IStationsService
     {
+        private Dictionary<long, EpgStationChannel> _cachedEpgStationChannels;
+
         private readonly ILocastService _locastService;
 
-        public StationsService(ILocastService locastService)
+        private StationsService()
+        {
+            _cachedEpgStationChannels = new Dictionary<long, EpgStationChannel>();
+        }
+
+        public StationsService(ILocastService locastService) : this()
         {
             _locastService = locastService;
         }
@@ -24,15 +31,14 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public async Task RefreshDmaStationsAndChannels(string dma)
         {
-            // await _fccService.GetFccStationsAsync();
+            // await RefreshStationCache();
             await GenerateDmaStationsAndChannelsFile(dma);
         }
 
         public async Task GenerateDmaStationsAndChannelsFile(string dma)
         {
+            
             var epgStations = await _locastService.GetEpgStationsForDmaAsync(dma);
-
-            var finalizedEpgStations = new Dictionary<long, EpgStationChannel>();
 
             foreach (var epgStation in epgStations)
             {
@@ -52,21 +58,17 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 {
                     epgStationChannel.channel = channel;
                     epgStationChannel.friendlyName = epgStation.callSign.Split()[1];
-                    finalizedEpgStations.Add(epgStation.id, epgStationChannel);
+                    _cachedEpgStationChannels.Add(epgStation.id, epgStationChannel);
                     continue;
                 }
 
-                // TODO: Finish implementing parser logic. Didn't need for my use-cases
-                // DetectCallSign(epgStation.callSign);
-                // DetectCallSign(epgStation.name);
-
-                finalizedEpgStations.Add(epgStation.id, epgStationChannel);
+                _cachedEpgStationChannels.Add(epgStation.id, epgStationChannel);
             }
 
             var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma}_stations.json");
             using (var fs = File.Create(filePath))
             {
-                await JsonSerializer.SerializeAsync(fs, finalizedEpgStations);
+                await JsonSerializer.SerializeAsync(fs, _cachedEpgStationChannels);
                 await fs.FlushAsync();
             }
         }
