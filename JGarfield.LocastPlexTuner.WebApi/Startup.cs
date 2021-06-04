@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Prometheus;
 
 namespace JGarfield.LocastPlexTuner.WebApi
 {
@@ -27,6 +28,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
             services.AddControllers()
                     .AddXmlSerializerFormatters();
 
+            // TODO: Figure out how to properly hook-in Prometheus IHttpClientFactory metrics here
             services.AddHttpClient()
                     .AddHttpClientLogging(_configuration)
                     .AddSingleton<IIpInfoClient, IpInfoClient>()
@@ -55,9 +57,27 @@ namespace JGarfield.LocastPlexTuner.WebApi
 
             app.UseRouting();
 
+            ConfigurePrometheus(app);
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+        }
+
+        /// <summary>
+        /// Configures Metrics and Endpoint(s) for Prometheus.
+        /// </summary>
+        /// <param name="app"></param>
+        private static void ConfigurePrometheus(IApplicationBuilder app)
+        {
+            // Prometheus ASP.NET Core HTTP request metrics (https://github.com/prometheus-net/prometheus-net#aspnet-core-http-request-metrics)
+            app.UseHttpMetrics();
+
+            app.UseEndpoints(endpoints =>
+            {
+                // Prometheus ASP.NET Core exporter middleware (https://github.com/prometheus-net/prometheus-net#aspnet-core-exporter-middleware)
+                endpoints.MapMetrics();
             });
         }
     }
