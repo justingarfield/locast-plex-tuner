@@ -4,7 +4,18 @@
 
 This is a full port of the https://github.com/tgorgdotcom/locast2plex Python library.
 
-## Why?
+## Under heavy development
+
+This repository is currently a temporary name and the codeset is being heavily revised, refactored, and updated to clean-up anything that's out-dated at this point. Feel free to Clone / Fork, but just be aware that things are going to keep drastically changing until a few more bugs are ironed out.
+
+### Known Issues
+
+* Channel Lineup / EPG / Guide only works for a 24-hour period unless you restart the process (currently being fixed)
+* No current way to view Tuner stats (which is tuned to what, how many bytes transferred, etc.)
+* Domain and DTOs still need more cleanup and refactoring
+* Unit Tests would be splendid
+
+## Why the port of Locast2Plex?
 
 I was having issues with that solution working properly, and have no clue how to efficiently debug Python, so it was just faster to translate it into a language / framework I'm familiar with.
 

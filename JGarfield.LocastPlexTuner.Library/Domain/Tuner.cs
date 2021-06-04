@@ -3,7 +3,7 @@
 namespace JGarfield.LocastPlexTuner.Library.Domain
 {
     /// <summary>
-    /// 
+    /// Represents a "virtual" Tuner Card.
     /// </summary>
     public class Tuner : IMetricsProvider<TunerMetrics>
     {
