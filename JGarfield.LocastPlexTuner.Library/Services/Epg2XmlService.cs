@@ -123,12 +123,6 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                             int durationInSeconds = listing.duration;
                             var endTime = startTime.AddSeconds(durationInSeconds);
                             
-                            var listingGenres = new string[0];
-                            if (!string.IsNullOrWhiteSpace(listing.genres))
-                            {
-                                listingGenres = listing.genres.Split(',');
-                            }
-
                             var programmeElement = xmlDoc.CreateElement("programme");
                             programmeElement.SetAttribute("start", startTime.ToString("yyyyMMddHHmmss +0000"));
                             programmeElement.SetAttribute("stop", endTime.ToString("yyyyMMddHHmmss +0000"));
@@ -141,7 +135,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                                 titleElement.InnerText = listing.title;
                                 programmeElement.AppendChild(titleElement);
                             }
-                            
+
+                            var listingGenres = new string[0];
+                            if (!string.IsNullOrWhiteSpace(listing.genres))
+                            {
+                                listingGenres = listing.genres.Split(',');
+                            }
+
                             if (listingGenres.Any(_ => _.Equals("movies", StringComparison.InvariantCultureIgnoreCase)) 
                                 && listing.releaseYear > RELEASE_YEAR_CUTOFF)
                             {

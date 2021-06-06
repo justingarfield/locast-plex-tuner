@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JGarfield.LocastPlexTuner.Library.Domain.Exceptions
+namespace JGarfield.LocastPlexTuner.Domain.Exceptions
 {
     public class LocastPlexTunerDomainException : Exception
     {

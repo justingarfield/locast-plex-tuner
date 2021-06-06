@@ -1,4 +1,4 @@
-﻿namespace JGarfield.LocastPlexTuner.Library.Domain
+﻿namespace JGarfield.LocastPlexTuner.Domain
 {
     public class DmaLocationAnnouncement
     {

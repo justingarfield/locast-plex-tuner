@@ -1,4 +1,4 @@
-﻿using JGarfield.LocastPlexTuner.Library.Domain;
+﻿using JGarfield.LocastPlexTuner.Domain;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;

@@ -1,4 +1,4 @@
-﻿namespace JGarfield.LocastPlexTuner.Library.Domain
+﻿namespace JGarfield.LocastPlexTuner.Domain
 {
     /// <summary>
     /// The different states a tuner instance can be in.

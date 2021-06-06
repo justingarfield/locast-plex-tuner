@@ -1,7 +1,5 @@
 ﻿using JGarfield.LocastPlexTuner.Library.Clients.Contracts;
-using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Dma;
 using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Locast.Epg;
-using JGarfield.LocastPlexTuner.Library.Domain;
 using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using M3USharp;
 using Microsoft.Extensions.Logging;
@@ -17,65 +15,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly ILocastClient _locastClient;
 
-        private readonly IIpInfoClient _ipInfoClient;
+        private readonly IDmaService _dmaService;
 
-        private DmaLocation _dmaLocation;
-
-        public LocastService(ILogger<LocastService> logger, ILocastClient locastClient, IIpInfoClient ipInfoClient)
+        public LocastService(ILogger<LocastService> logger, ILocastClient locastClient, IDmaService dmaService)
         {
             _logger = logger;
             _locastClient = locastClient;
-            _ipInfoClient = ipInfoClient;
-        }
-
-        public async Task<DmaLocation> GetDmaLocationAsync(string zipCode = null)
-        {
-            if (_dmaLocation == null)
-            {
-                // zip_format = re.compile(r'^[0-9]{5}$')
-                LocastDmaLocationDto locastDmaLocationDto;
-
-                if (string.IsNullOrWhiteSpace(zipCode))
-                {
-                    var ipAddress = await _ipInfoClient.GetPublicIpAddressAsync();
-                    _logger.LogInformation($"Public IP Address was: {ipAddress}");
-                    locastDmaLocationDto = await _locastClient.GetLocationByIpAddressAsync(ipAddress);
-                }
-                else
-                {
-                    locastDmaLocationDto = await _locastClient.GetLocationByZipCodeAsync(zipCode);
-                }
-
-                _dmaLocation = new DmaLocation
-                {
-                    Active = locastDmaLocationDto.active,
-                    DMA = locastDmaLocationDto.DMA,
-                    LargeUrl = locastDmaLocationDto.large_url,
-                    Latitude = locastDmaLocationDto.latitude,
-                    Longitude = locastDmaLocationDto.longitude,
-                    Name = locastDmaLocationDto.name,
-                    PublicIP = locastDmaLocationDto.publicIP,
-                    SmallUrl = locastDmaLocationDto.small_url
-                };
-
-                if (locastDmaLocationDto.announcements.Length > 0)
-                {
-                    foreach (var announcement in locastDmaLocationDto.announcements)
-                    {
-                        _dmaLocation.Announcements.Add(new DmaLocationAnnouncement
-                        {
-                            Title = announcement.title,
-                            MessageHtml = announcement.messageHtml,
-                            MessageText = announcement.messageText,
-                            MessageType = announcement.messageType
-                        });
-                    }
-                }
-
-                _logger.LogInformation($"Got location as {_dmaLocation.Name} - DMA {_dmaLocation.DMA} - Lat\\Lon {_dmaLocation.Latitude}\\{_dmaLocation.Longitude}.");
-            }
-
-            return _dmaLocation;
+            _dmaService = dmaService;
         }
 
         public async Task<List<LocastChannelDto>> GetEpgStationsForDmaAsync(string dma, DateTimeOffset? startTime = null)
@@ -88,7 +34,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         public async Task<Uri> GetStationStreamUri(long stationId)
         {
-            var dma = await GetDmaLocationAsync();
+            var dma = await _dmaService.GetDmaLocationAsync();
 
             var locastStationDto = await _locastClient.GetStationAsync(stationId, dma.Latitude, dma.Longitude);
 

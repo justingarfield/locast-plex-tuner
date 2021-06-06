@@ -1,5 +1,5 @@
 ﻿using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Tuner;
-using JGarfield.LocastPlexTuner.Library.Domain;
+using JGarfield.LocastPlexTuner.Domain;
 using JGarfield.LocastPlexTuner.Library.Metrics;
 using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.AspNetCore.Http;

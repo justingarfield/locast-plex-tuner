@@ -39,8 +39,17 @@ I was having issues with that solution working properly, and have no clue how to
 | LOCAST_DMA | bypass the normal DMA lookup process using an explicit DMA | Coming soon |
 | KESTREL_LISTEN_ADDRESS | use an explicit listener address when starting the WebApi under Kestrel | Coming soon |
 | KESTREL_LISTEN_PORT | use an explicit listener port when starting the WebApi under Kestrel | Coming soon |
+| EPG_DAYS_TO_PULL | How many days of listings to pull at once for the Electronic Program Guide | Coming soon |
 
 ## Terminology
 
 * DMA = Designated Market Area
 * EPG = Electronic Programming Guide
+
+## References
+
+* [xmltv.dtd](https://github.com/XMLTV/xmltv/blob/master/xmltv.dtd)
+* [XMLTV File format](http://wiki.xmltv.org/index.php/XMLTVFormat)
+* [Silicondust / libhdhomerun](https://github.com/Silicondust/libhdhomerun)
+* [tgorgdotcom / locast2plex](https://github.com/tgorgdotcom/locast2plex)
+* [Snowman (C++ Disassembler)](https://derevenets.com/)

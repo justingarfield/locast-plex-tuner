@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace JGarfield.LocastPlexTuner.Library.Domain
+namespace JGarfield.LocastPlexTuner.Domain
 {
     /// <summary>
     /// Designated Market Areas

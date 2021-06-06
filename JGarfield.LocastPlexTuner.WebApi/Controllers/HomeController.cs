@@ -1,6 +1,4 @@
 ﻿using JGarfield.LocastPlexTuner.Library;
-using JGarfield.LocastPlexTuner.Library.Domain.Exceptions;
-using JGarfield.LocastPlexTuner.Library.Services;
 using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using System;

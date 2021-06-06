@@ -10,15 +10,15 @@ namespace JGarfield.LocastPlexTuner.Library.Clients.Contracts
 {
     public interface ILocastClient
     {
-        Task<LocastDmaLocationDto> GetLocationByZipCodeAsync(string zipCode);
+        Task<LocastDmaLocationDto> GetDmaByZipCodeAsync(string zipCode);
 
-        Task<LocastDmaLocationDto> GetLocationByIpAddressAsync(string ipAddress);
+        Task<LocastDmaLocationDto> GetDmaByIpAddressAsync(string ipAddress);
 
-        Task<LocastDmaLocationDto> GetLocationByLatLongAsync(double latitude, double longitude);
+        Task<LocastDmaLocationDto> GetDmaByLatLongAsync(double latitude, double longitude);
 
         Task<LocastUserDetailsDto> GetUserDetails();
 
-        Task<List<LocastChannelDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null);
+        Task<List<LocastChannelDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null, int? hours = 0);
 
         Task<LocastStationDto> GetStationAsync(long stationId, double latitude, double longitude);
 

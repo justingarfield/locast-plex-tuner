@@ -1,12 +1,8 @@
-﻿using JGarfield.LocastPlexTuner.Library.Domain.Exceptions;
+﻿using JGarfield.LocastPlexTuner.Domain.Exceptions;
 using JGarfield.LocastPlexTuner.Library.Services.Contracts;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,9 +20,18 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly IEpg2XmlService _epg2XmlService;
 
+        private readonly IDmaService _dmaService;
+
         private readonly ApplicationContext _applicationContext;
 
-        public InitializationService(ILogger<InitializationService> logger, IConfiguration configuration, ILocastService locastService, IStationsService stationsService, IEpg2XmlService epg2XmlService, ApplicationContext applicationContext)
+        public InitializationService(
+            ILogger<InitializationService> logger, 
+            IConfiguration configuration, 
+            ILocastService locastService, 
+            IStationsService stationsService, 
+            IEpg2XmlService epg2XmlService, 
+            ApplicationContext applicationContext,
+            IDmaService dmaService)
         {
             _logger = logger;
             _configuration = configuration;
@@ -34,6 +39,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             _stationsService = stationsService;
             _epg2XmlService = epg2XmlService;
             _applicationContext = applicationContext;
+            _dmaService = dmaService;
         }
 
         public void LogInitializationBanner()
@@ -118,7 +124,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var zipCodeOverride = _configuration.GetSection("LOCAST_ZIPCODE").Value;
             var zipCode = string.IsNullOrWhiteSpace(zipCodeOverride) ? null : zipCodeOverride;
 
-            var dmaLocation = await _locastService.GetDmaLocationAsync(zipCode);
+            var dmaLocation = await _dmaService.GetDmaLocationAsync(zipCode);
             if (dmaLocation == null)
             {
                 throw new LocastPlexTunerDomainException("Unable to determine the Designated Market Area (DMA) for your location. Please visit https://www.locast.org/dma to verify your DMA and set it explicitly using the LOCAST_DMA configuration setting.");

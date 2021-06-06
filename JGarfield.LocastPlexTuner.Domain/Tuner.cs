@@ -1,11 +1,9 @@
-﻿using JGarfield.LocastPlexTuner.Library.Metrics;
-
-namespace JGarfield.LocastPlexTuner.Library.Domain
+﻿namespace JGarfield.LocastPlexTuner.Domain
 {
     /// <summary>
     /// Represents a "virtual" Tuner Card.
     /// </summary>
-    public class Tuner : IMetricsProvider<TunerMetrics>
+    public class Tuner
     {
         private long BytesStreamedThisSession { get; set; }
 
@@ -44,21 +42,5 @@ namespace JGarfield.LocastPlexTuner.Library.Domain
         {
             Status = TunerStatus.Streaming;
         }
-
-        #region Metrics Related
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public TunerMetrics GetMetrics()
-        {
-            return new TunerMetrics
-            {
-                
-            };
-        }
-
-        #endregion Metrics Related
     }
 }

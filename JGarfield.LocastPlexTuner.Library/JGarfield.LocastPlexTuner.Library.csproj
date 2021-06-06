@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\Entities\" />
+    <ProjectReference Include="..\JGarfield.LocastPlexTuner.Domain\JGarfield.LocastPlexTuner.Domain.csproj" />
   </ItemGroup>
 
 </Project>

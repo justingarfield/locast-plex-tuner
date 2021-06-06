@@ -31,6 +31,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
             // TODO: Figure out how to properly hook-in Prometheus IHttpClientFactory metrics here
             services.AddHttpClient()
                     .AddHttpClientLogging(_configuration)
+                    .AddSingleton<IDmaService, DmaService>()
                     .AddSingleton<IIpInfoClient, IpInfoClient>()
                     .AddSingleton<ILocastClient, LocastClient>()
                     .AddSingleton<IM3UService, M3UService>()

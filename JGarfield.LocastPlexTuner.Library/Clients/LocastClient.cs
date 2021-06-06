@@ -29,7 +29,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             _configuration = configuration;
         }
 
-        public async Task<LocastDmaLocationDto> GetLocationByZipCodeAsync(string zipCode)
+        public async Task<LocastDmaLocationDto> GetDmaByZipCodeAsync(string zipCode)
         {
             using var client = _clientFactory.CreateClient();
             client.BaseAddress = LOCAST_API_BASE_URI;
@@ -37,7 +37,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/zip/{zipCode}");
         }
 
-        public async Task<LocastDmaLocationDto> GetLocationByIpAddressAsync(string ipAddress)
+        public async Task<LocastDmaLocationDto> GetDmaByIpAddressAsync(string ipAddress)
         {
             using var client = _clientFactory.CreateClient();
             client.BaseAddress = LOCAST_API_BASE_URI;
@@ -46,7 +46,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             return await client.GetFromJsonAsync<LocastDmaLocationDto>($"watch/dma/ip");
         }
 
-        public async Task<LocastDmaLocationDto> GetLocationByLatLongAsync(double latitude, double longitude)
+        public async Task<LocastDmaLocationDto> GetDmaByLatLongAsync(double latitude, double longitude)
         {
             using var client = _clientFactory.CreateClient();
             client.BaseAddress = LOCAST_API_BASE_URI;
@@ -66,7 +66,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             return await client.GetFromJsonAsync<LocastUserDetailsDto>($"user/me");
         }
 
-        public async Task<List<LocastChannelDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null)
+        public async Task<List<LocastChannelDto>> GetEpgForDmaAsync(string dma, DateTimeOffset? startTime = null, int? hours = 0)
         {
             await PerformLoginIfNeededAsync();
 
@@ -78,7 +78,15 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             if (startTime.HasValue)
             {
                 var isoStartTime = startTime.Value.DateTime.ToString("yyyy-MM-ddTHH:mm:sszzz");
-                return await client.GetFromJsonAsync<List<LocastChannelDto>>($"watch/epg/{dma}?startTime={isoStartTime}");
+
+                if (hours.HasValue)
+                {
+                    return await client.GetFromJsonAsync<List<LocastChannelDto>>($"watch/epg/{dma}?startTime={isoStartTime}&hours={hours}");
+                }
+                else
+                {
+                    return await client.GetFromJsonAsync<List<LocastChannelDto>>($"watch/epg/{dma}?startTime={isoStartTime}");
+                }
             }
             else
             {
