@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
 {
@@ -147,12 +148,12 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             return channelLineup;
         }
         
-        public async Task DoTuning(long stationId)
+        public async Task TuneToStation(long stationId, CancellationToken cancellationToken)
         {
-            _logger.LogDebug($"Entering {nameof(DoTuning)} with a stationId of: {stationId}");
+            _logger.LogDebug($"Entering {nameof(TuneToStation)} with a stationId of: {stationId}");
 
-            var stationStreamUri = await _locastService.GetStationStreamUri(stationId);
-            _logger.LogTrace($"Using a {nameof(stationStreamUri)} value of: {stationStreamUri}");
+            var stationStreamDetails = await _locastService.GetStationStreamUri(stationId);
+            _logger.LogTrace($"Using a {nameof(stationStreamDetails)} value of: {stationStreamDetails}");
 
             var dmaStationsAndChannels = await _stationsService.GetDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
             _logger.LogTrace($"Using {nameof(dmaStationsAndChannels)} value of: {dmaStationsAndChannels}");
@@ -168,21 +169,21 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 return;
             }
 
-            idleTuner.SetScanStatusToTuned();
+            idleTuner.SetStatusToStreaming();
             idleTuner.CurrentChannel = dmaStationsAndChannels[stationId].channel;
 
             try
             {
                 var httpContext = _httpContextAccessor.HttpContext;
-                await _httpFfmpegService.StreamToHttpResponseAsync(stationStreamUri, httpContext);
+                await _httpFfmpegService.StreamToHttpResponseAsync(stationStreamDetails, httpContext, cancellationToken);
             }
             finally
             {
                 // Place the Tuner back into the available pool by marking it as Idle
-                idleTuner.SetScanStatusToIdle();
+                idleTuner.SetStatusToIdle();
             }
 
-            _logger.LogDebug($"Leaving {nameof(DoTuning)}");
+            _logger.LogDebug($"Leaving {nameof(TuneToStation)}");
         }
 
         public async Task GetStatistics()
@@ -197,7 +198,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
             foreach (var tuner in idleTuners)
             {
-                tuner.SetScanStatusToScanning();
+                tuner.SetStatusToScanning();
             }
 
             _activeStationScan = true;
@@ -212,12 +213,24 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
             foreach (var tuner in scanningTuners)
             {
-                tuner.SetScanStatusToIdle();
+                tuner.SetStatusToIdle();
             }
 
             _activeStationScan = false;
 
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task StopAllActiveStreams()
+        {
+            foreach (var tuner in GetStreamingTuners())
+            {
+                tuner.SetStatusToIdle();
+            }
         }
 
         public Task<string> GetRmgScanProvidersXml()
@@ -272,8 +285,12 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private Tuner GetIdleTuner()
         {
-            var allTuners = GetTuners();
-            return allTuners.First(tuner => tuner.Status == TunerStatus.Idle);
+            return GetTuners().First(tuner => tuner.Status == TunerStatus.Idle);
+        }
+
+        private IEnumerable<Tuner> GetStreamingTuners()
+        {
+            return GetTuners().Where(tuner => tuner.Status == TunerStatus.Streaming);
         }
 
         private List<Tuner> GetTuners(TunerStatus? scanStatus = null)

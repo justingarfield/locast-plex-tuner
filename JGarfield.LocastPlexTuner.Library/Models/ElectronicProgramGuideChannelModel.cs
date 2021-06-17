@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Xml.Serialization;
 
 namespace JGarfield.LocastPlexTuner.Library.Models
 {
@@ -28,5 +29,8 @@ namespace JGarfield.LocastPlexTuner.Library.Models
 
         [XmlElement("icon")]
         public string Icon { get; init; }
+
+        [XmlElement("url")]
+        public Uri Uri { get; init; }
     }
 }

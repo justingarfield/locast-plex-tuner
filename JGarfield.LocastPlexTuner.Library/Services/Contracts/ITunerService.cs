@@ -1,5 +1,6 @@
 ﻿using JGarfield.LocastPlexTuner.Library.Clients.DTOs.Tuner;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
@@ -16,9 +17,15 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
 
         Task<List<LineupItem>> GetChannelLineupAsync();
 
-        Task DoTuning(long stationId);
+        Task TuneToStation(long stationId, CancellationToken cancellationToken);
 
         Task StopAllScanningForAllTuners();
+
+        /// <summary>
+        /// Used during a clean shutdown to stop any actively open streams attached to a tuner.
+        /// </summary>
+        /// <returns></returns>
+        Task StopAllActiveStreams();
 
         Task StartStationScan();
 

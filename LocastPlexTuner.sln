@@ -17,6 +17,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JGarfield.LocastPlexTuner.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JGarfield.LocastPlexTuner.Utilities", "JGarfield.LocastPlexTuner.Utilities\JGarfield.LocastPlexTuner.Utilities.csproj", "{5ECCEA1A-1EBD-4A82-A1C7-E64ACF5EA3F2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{C30D06D3-C6F7-4436-AC6C-045E79394CA0}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\Development.md = Documentation\Development.md
+		Documentation\Docker.md = Documentation\Docker.md
+		Documentation\Research.md = Documentation\Research.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +49,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C30D06D3-C6F7-4436-AC6C-045E79394CA0} = {ACCF7E8B-5091-4528-890B-B86A8DABBAAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E0337FD1-C250-4C7F-BE9B-C3AB35C426A6}

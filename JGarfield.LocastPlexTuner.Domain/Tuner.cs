@@ -22,7 +22,7 @@
         /// <summary>
         /// Sets the tuner's state to <see cref="TunerStatus.Idle"/>.
         /// </summary>
-        public void SetScanStatusToIdle()
+        public void SetStatusToIdle()
         {
             Status = TunerStatus.Idle;
         }
@@ -30,7 +30,7 @@
         /// <summary>
         /// Sets the tuner's state to <see cref="TunerStatus.Scanning"/>.
         /// </summary>
-        public void SetScanStatusToScanning()
+        public void SetStatusToScanning()
         {
             Status = TunerStatus.Scanning;
         }
@@ -38,7 +38,7 @@
         /// <summary>
         /// Sets the tuner's state to <see cref="TunerStatus.Streaming"/>.
         /// </summary>
-        public void SetScanStatusToTuned()
+        public void SetStatusToStreaming()
         {
             Status = TunerStatus.Streaming;
         }

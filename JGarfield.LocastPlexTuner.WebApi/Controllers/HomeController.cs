@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -45,13 +46,6 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         {
             var rmgIdentification = await _tunerService.GetRmgIdentification();
             return Ok(rmgIdentification);
-
-            /*return new ContentResult
-            {
-                Content = rmgIdentification,
-                ContentType = "application/xml",
-                StatusCode = 200
-            };*/
         }
 
         [Route("/device.xml")]
@@ -124,37 +118,11 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
 
         [Route("/watch/{stationId}")]
         [HttpGet]
-        public async Task Watch(long stationId)
+        public async Task Watch(long stationId, CancellationToken cancellationToken)
         {
-            /*
-            var filePath = @"c:\temp\file.mpg"; // Your path to the audio file.
-            var bufferSize = 1024;
-            var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize);
-            return File(fileStream, "audio/mpeg");
-            */
-            await _tunerService.DoTuning(stationId);
+            await _tunerService.TuneToStation(stationId, cancellationToken);
         }
-
-        [Route("/auto/v{stationId}")]
-        [HttpGet]
-        public async Task AutoV(long stationId)
-        {
-            await _tunerService.DoTuning(stationId);
-        }
-
-        [Route("/devices/{uuid}/media/{channelNo}")]
-        [HttpGet]
-        public async Task DeviceTuning(string uuid, string channelNo)
-        {
-            channelNo = channelNo.Replace("id://", string.Empty).Replace("/", string.Empty);
-
-            decimal.TryParse(channelNo, out decimal channel);
-
-            var stationId = await _stationsService.GetStationIdByChannel(_applicationContext.CurrentDMA.DMA, channel);
-
-            await _tunerService.DoTuning(stationId);
-        }
-
+        
         [Route("/xmltv.xml")]
         [HttpGet]
         public async Task<IActionResult> XmlTv()
@@ -325,5 +293,28 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             await _tunerService.StopAllScanningForAllTuners();
             return null;
         }
+
+        /*=== Have never seen Plex hit these
+        
+        [Route("/auto/v{stationId}")]
+        [HttpGet]
+        public async Task AutoV(long stationId, CancellationToken cancellationToken)
+        {
+            await _tunerService.TuneToStation(stationId, cancellationToken);
+        }
+
+        [Route("/devices/{uuid}/media/{channelNo}")]
+        [HttpGet]
+        public async Task DeviceTuning(string uuid, string channelNo, CancellationToken cancellationToken)
+        {
+            channelNo = channelNo.Replace("id://", string.Empty).Replace("/", string.Empty);
+
+            decimal.TryParse(channelNo, out decimal channel);
+
+            var stationId = await _stationsService.GetStationIdByChannel(_applicationContext.CurrentDMA.DMA, channel);
+
+            await _tunerService.TuneToStation(stationId, cancellationToken);
+        }
+        */
     }
 }

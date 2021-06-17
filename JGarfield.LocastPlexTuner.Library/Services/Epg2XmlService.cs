@@ -162,7 +162,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                             {
                                 listing.description = "Unavailable";
                             }
-
+                            
                             var descElement = xmlDoc.CreateElement("desc");
                             descElement.SetAttribute("lang", "en");
                             descElement.InnerText = $"{listing.description}";
@@ -173,17 +173,43 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                             lengthElement.InnerText = $"{listing.duration}";
                             programmeElement.AppendChild(lengthElement);
 
+                            var entityType = listing.entityType;
+                            if (!string.IsNullOrWhiteSpace(entityType)) {
+
+                                XmlElement categoryElement;
+                                if (entityType.Trim().Contains("sports", StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    categoryElement = xmlDoc.CreateElement("category");
+                                    descElement.SetAttribute("lang", "en");
+                                    categoryElement.InnerText = $"television";
+                                    programmeElement.AppendChild(categoryElement);
+
+                                    categoryElement = xmlDoc.CreateElement("category");
+                                    descElement.SetAttribute("lang", "en");
+                                    categoryElement.InnerText = $"series";
+                                    programmeElement.AppendChild(categoryElement);
+                                }
+
+                                categoryElement = xmlDoc.CreateElement("category");
+                                descElement.SetAttribute("lang", "en");
+                                categoryElement.InnerText = $"{entityType.Trim()}";
+                                programmeElement.AppendChild(categoryElement);
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(listing.showType))
+                            {
+                                var categoryElement = xmlDoc.CreateElement("category");
+                                descElement.SetAttribute("lang", "en");
+                                categoryElement.InnerText = $"{listing.showType.Trim()}";
+                                programmeElement.AppendChild(categoryElement);
+                            }
+
                             foreach (var genre in listingGenres)
                             {
                                 var categoryElement = xmlDoc.CreateElement("category");
                                 descElement.SetAttribute("lang", "en");
                                 categoryElement.InnerText = $"{genre.Trim()}";
                                 programmeElement.AppendChild(categoryElement);
-
-                                var genreElement = xmlDoc.CreateElement("genre");
-                                descElement.SetAttribute("lang", "en");
-                                genreElement.InnerText = $"{genre.Trim()}";
-                                programmeElement.AppendChild(genreElement);
                             }
                             
                             if (!string.IsNullOrWhiteSpace(listing.preferredImage))

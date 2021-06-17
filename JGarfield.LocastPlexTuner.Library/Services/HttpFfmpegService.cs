@@ -1,9 +1,10 @@
-﻿using JGarfield.LocastPlexTuner.Library.Services.Contracts;
+﻿using JGarfield.LocastPlexTuner.Domain;
+using JGarfield.LocastPlexTuner.Library.Services.Contracts;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Services
@@ -14,16 +15,13 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly ApplicationContext _applicationContext;
 
-        private readonly IConfiguration _configuration;
-
-        public HttpFfmpegService(ILogger<HttpFfmpegService> logger, ApplicationContext applicationContext, IConfiguration configuration)
+        public HttpFfmpegService(ILogger<HttpFfmpegService> logger, ApplicationContext applicationContext)
         {
             _logger = logger;
             _applicationContext = applicationContext;
-            _configuration = configuration;
         }
 
-        public async Task StreamToHttpResponseAsync(Uri streamUri, HttpContext httpContext)
+        public async Task StreamToHttpResponseAsync(StreamDetails stationStreamDetails, HttpContext httpContext, CancellationToken cancellationToken)
         {
             Process process = null;
             try
@@ -47,17 +45,20 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 //  -hide_banner        = Don't output the standard banner, copyrights, etc. (it'll mess up the StandardOutput stream data)
                 //  -loglevel warning   = Show all warnings and errors. Any message related to possibly incorrect or unexpected events will be shown.
                 //  pipe:1              = Use Pipes for output
-                processStartInfo.Arguments = $"-i {streamUri} -c copy -f mpegts -nostats -hide_banner -loglevel warning pipe:1";
+                processStartInfo.Arguments = $"-i {stationStreamDetails.Uri} -c copy -f mpegts -nostats -hide_banner -loglevel warning pipe:1";
 
                 // We want all of the output being piped from ffmpeg to go directly to stdout since we're feeding that raw into the HttpResponse Body's stream.
                 processStartInfo.RedirectStandardOutput = true;
 
                 process = Process.Start(processStartInfo);
-                
-                var videoData = new byte[65536];
+
+                // Not every Locast stream listed in the m3u8s has a bitrate available, especially older shows / movies.
+                var streamBufferSize = stationStreamDetails.BitrateInBytes > 0 ? stationStreamDetails.BitrateInBytes : 65536;
+
+                var videoData = new byte[streamBufferSize];
                 var bytesRead = await process.StandardOutput.BaseStream.ReadAsync(videoData);
 
-                while (!httpContext.RequestAborted.IsCancellationRequested) // Triggered when someone stops the stream over in Plex
+                while (!cancellationToken.IsCancellationRequested) // Triggered when someone stops the stream over in Plex
                 {
                     if (bytesRead == 0)
                     {
