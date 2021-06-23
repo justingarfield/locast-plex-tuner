@@ -19,8 +19,6 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
 
         private readonly IStationsService _stationsService;
 
-        private readonly IM3UService _m3uService;
-        
         private readonly IEpg2XmlService _epg2XmlService;
         
         private readonly ApplicationContext _applicationContext;
@@ -31,11 +29,10 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             WriteIndented = true
         };
 
-        public HomeController(ITunerService tunerService, IStationsService stationsService, IM3UService m3uService, IEpg2XmlService epg2XmlService, ApplicationContext applicationContext)
+        public HomeController(ITunerService tunerService, IStationsService stationsService, IEpg2XmlService epg2XmlService, ApplicationContext applicationContext)
         {
             _tunerService = tunerService;
             _stationsService = stationsService;
-            _m3uService = m3uService;
             _epg2XmlService = epg2XmlService;
             _applicationContext = applicationContext;
         }
@@ -127,7 +124,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> XmlTv()
         {
-            var content = await _epg2XmlService.GetEpgFile(_applicationContext.CurrentDMA.DMA);
+            var content = await _epg2XmlService.GetEpgFile();
             return new ContentResult
             {
                 Content = content,
@@ -135,7 +132,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
                 StatusCode = 200
             };
         }
-
+        /*
         [Route("/channels.m3u")]
         [HttpGet]
         public async Task<IActionResult> ChannelsM3U()
@@ -148,7 +145,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
                 StatusCode = 200
             };
         }
-
+        */
         [Route("/devices/{uuid}")]
         [HttpGet]
         public async Task<IActionResult> RmgDeviceIdentity(string uuid)
@@ -226,7 +223,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
                 {
                     Response.OnCompleted(async () =>
                     {
-                        await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
+                        await _stationsService.RefreshDmaStationsAndChannels();
                         await _tunerService.StopAllScanningForAllTuners();
                     });
                 }
@@ -278,7 +275,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
             {
                 Response.OnCompleted(async () =>
                 {
-                    await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
+                    await _stationsService.RefreshDmaStationsAndChannels();
                     await _tunerService.StopAllScanningForAllTuners();
                 });
             }

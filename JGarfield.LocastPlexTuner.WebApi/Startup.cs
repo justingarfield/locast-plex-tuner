@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Polly;
 using Prometheus;
+using System;
 
 namespace JGarfield.LocastPlexTuner.WebApi
 {
@@ -28,13 +30,28 @@ namespace JGarfield.LocastPlexTuner.WebApi
             services.AddControllers()
                     .AddXmlSerializerFormatters();
 
-            // TODO: Figure out how to properly hook-in Prometheus IHttpClientFactory metrics here
-            services.AddHttpClient()
-                    .AddHttpClientLogging(_configuration)
+            services.AddHttpClient<IIpInfoClient, IpInfoClient>()
+                        .AddTransientHttpErrorPolicy(
+                            p => p.WaitAndRetryAsync(new[]
+                            {
+                                TimeSpan.FromSeconds(1),
+                                TimeSpan.FromSeconds(5),
+                                TimeSpan.FromSeconds(10)
+                            }))
+                        .UseHttpClientMetrics();
+
+            services.AddHttpClient<ILocastClient, LocastClient>()
+                        .AddTransientHttpErrorPolicy(
+                            p => p.WaitAndRetryAsync(new[]
+                            {
+                                TimeSpan.FromSeconds(1),
+                                TimeSpan.FromSeconds(5),
+                                TimeSpan.FromSeconds(10)
+                            }))
+                        .UseHttpClientMetrics();
+
+            services.AddHttpClientLogging(_configuration)
                     .AddSingleton<IDmaService, DmaService>()
-                    .AddSingleton<IIpInfoClient, IpInfoClient>()
-                    .AddSingleton<ILocastClient, LocastClient>()
-                    .AddSingleton<IM3UService, M3UService>()
                     .AddSingleton<IEpg2XmlService, Epg2XmlService>()
                     .AddSingleton<IInitializationService, InitializationService>()
                     .AddSingleton<IIpInfoService, IpInfoService>()

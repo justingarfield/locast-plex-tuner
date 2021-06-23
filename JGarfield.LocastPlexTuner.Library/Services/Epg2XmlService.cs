@@ -20,38 +20,30 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         private readonly IStationsService _stationsService;
 
         private readonly ILocastService _locastService;
-        
-        public Epg2XmlService(IStationsService stationsService, ILocastService locastService)
+
+        private readonly IDmaService _dmaService;
+
+        public Epg2XmlService(IStationsService stationsService, ILocastService locastService, IDmaService dmaService)
         {
             _stationsService = stationsService;
             _locastService = locastService;
+            _dmaService = dmaService;
         }
 
-        public async Task WriteDummyXmlIfNotExists(string dma)
+        public async Task<string> GetEpgFile()
         {
-            var xmlDoc = CreateNewRootXmlDocument();
-
-            var tvElement = CreateNewTvXmlElement(xmlDoc);
-            xmlDoc.AppendChild(tvElement);
-
-            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dma}_epg.xml");
-            xmlDoc.Save(filename);
-
-            await Task.CompletedTask;
-        }
-
-        public async Task<string> GetEpgFile(string dma)
-        {
-            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dma}_epg.xml");
+            var dma = await _dmaService.GetDmaLocationAsync();
+            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dma.DMA}_epg.xml");
             var xmlDoc = new XmlDocument();
             xmlDoc.Load(filename);
             
             return await Task.FromResult(xmlDoc.OuterXml);
         }
 
-        public async Task GenerateEpgFile(string dma)
+        public async Task GenerateEpgFile()
         {
-            var dmaChannels = await _stationsService.GetDmaStationsAndChannels(dma);
+            var dma = await _dmaService.GetDmaLocationAsync();
+            var dmaChannels = await _stationsService.GetDmaStationsAndChannels();
 
             var todaysDate = DateTimeOffset.UtcNow;
             var datesToPull = new List<DateTimeOffset> { todaysDate, todaysDate.AddDays(1), todaysDate.AddDays(2) };
@@ -66,7 +58,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var channelsDone = false;
             foreach (var dateToPull in datesToPull)
             {
-                var epgStations = await GetCached(dateToPull, dma);
+                var epgStations = await GetCached(dateToPull, dma.DMA);
 
                 if (!channelsDone)
                 {

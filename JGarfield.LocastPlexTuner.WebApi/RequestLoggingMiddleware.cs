@@ -58,6 +58,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"An exception occurred in {nameof(RequestLoggingMiddleware)}");
                 await _next(httpContext);
             }
         }

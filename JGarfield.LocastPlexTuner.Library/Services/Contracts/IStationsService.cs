@@ -5,12 +5,12 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
 {
     public interface IStationsService
     {
-        Task GenerateDmaStationsAndChannelsFile(string dma);
+        Task GenerateDmaStationsAndChannelsFile();
 
-        Task<Dictionary<long, EpgStationChannel>> GetDmaStationsAndChannels(string dma);
+        Task<Dictionary<long, EpgStationChannel>> GetDmaStationsAndChannels();
 
-        Task RefreshDmaStationsAndChannels(string dma);
+        Task RefreshDmaStationsAndChannels();
 
-        Task<long> GetStationIdByChannel(string dma, decimal channel);
+        Task<long> GetStationIdByChannel(decimal channel);
     }
 }

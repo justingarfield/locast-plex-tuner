@@ -35,9 +35,9 @@ I was having issues with that solution working properly, and have no clue how to
 | Variable Name | Description | Availability |
 | --- | --- | --- |
 | LOCAST_ZIPCODE | bypass the normal DMA lookup process, and instead use an explicit zipcode | Working |
-| LOCAST_LATITUDE | bypass the normal DMA lookup process using an explicit latitude/longitude | Coming soon |
-| LOCAST_LONGITUDE | bypass the normal DMA lookup process using an explicit latitude/longitude | Coming soon |
-| LOCAST_DMA | bypass the normal DMA lookup process using an explicit DMA | Coming soon |
+| LOCAST_LATITUDE | bypass the normal DMA lookup process using an explicit latitude/longitude | Working |
+| LOCAST_LONGITUDE | bypass the normal DMA lookup process using an explicit latitude/longitude | Working |
+| LOCAST_DMA | bypass the normal DMA lookup process using an explicit DMA | Working |
 | KESTREL_LISTEN_ADDRESS | use an explicit listener address when starting the WebApi under Kestrel | Coming soon |
 | KESTREL_LISTEN_PORT | use an explicit listener port when starting the WebApi under Kestrel | Coming soon |
 | EPG_DAYS_TO_PULL | How many days of listings to pull at once for the Electronic Program Guide | Coming soon |

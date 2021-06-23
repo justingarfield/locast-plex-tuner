@@ -13,32 +13,34 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
         private readonly ILocastService _locastService;
 
+        private readonly IDmaService _dmaService;
+
         private StationsService()
         {
             _cachedEpgStationChannels = new Dictionary<long, EpgStationChannel>();
         }
 
-        public StationsService(ILocastService locastService) : this()
+        public StationsService(ILocastService locastService, IDmaService dmaService) : this()
         {
             _locastService = locastService;
+            _dmaService = dmaService;
         }
 
-        public async Task<long> GetStationIdByChannel(string dma, decimal channel)
+        public async Task<long> GetStationIdByChannel(decimal channel)
         {
-            var stations = await GetDmaStationsAndChannels(dma);
+            var stations = await GetDmaStationsAndChannels();
             return stations.FirstOrDefault(_ => _.Value.channel == channel).Key;
         }
 
-        public async Task RefreshDmaStationsAndChannels(string dma)
+        public async Task RefreshDmaStationsAndChannels()
         {
-            // await RefreshStationCache();
-            await GenerateDmaStationsAndChannelsFile(dma);
+            await GenerateDmaStationsAndChannelsFile();
         }
 
-        public async Task GenerateDmaStationsAndChannelsFile(string dma)
+        public async Task GenerateDmaStationsAndChannelsFile()
         {
-            
-            var epgStations = await _locastService.GetEpgStationsForDmaAsync(dma);
+            var dma = await _dmaService.GetDmaLocationAsync();
+            var epgStations = await _locastService.GetEpgStationsForDmaAsync(dma.DMA);
 
             foreach (var epgStation in epgStations)
             {
@@ -73,8 +75,9 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             }
         }
 
-        public async Task<Dictionary<long, EpgStationChannel>> GetDmaStationsAndChannels(string dma)
+        public async Task<Dictionary<long, EpgStationChannel>> GetDmaStationsAndChannels()
         {
+            var dma = await _dmaService.GetDmaLocationAsync();
             var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma}_stations.json");
 
             Dictionary<long, EpgStationChannel> result;

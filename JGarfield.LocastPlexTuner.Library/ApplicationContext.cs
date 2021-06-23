@@ -21,8 +21,6 @@ namespace JGarfield.LocastPlexTuner.Library
 
         public string FfmpegBinaryPath { get; set; }
 
-        public DmaLocation CurrentDMA { get; set; }
-
         public Uri BaseUri {
             get
             {

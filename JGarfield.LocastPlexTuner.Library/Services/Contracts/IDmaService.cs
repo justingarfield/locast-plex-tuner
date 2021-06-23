@@ -8,6 +8,15 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
     /// </summary>
     public interface IDmaService
     {
-        Task<DmaLocation> GetDmaLocationAsync(string zipCode = null);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="zipCode"></param>
+        /// <param name="latitude"></param>
+        /// <param name="longitude"></param>
+        /// <param name="dma"></param>
+        /// <param name="forceLookup"></param>
+        /// <returns></returns>
+        Task<DmaLocation> GetDmaLocationAsync(string zipCode = null, double latitude = default, double longitude = default, string dma = null, bool forceLookup = false);
     }
 }

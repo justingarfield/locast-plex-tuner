@@ -17,12 +17,27 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         /// </summary>
         private DmaLocation _currentDmaLocation;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private readonly ILogger<LocastService> _logger;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private readonly ILocastClient _locastClient;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private readonly IIpInfoClient _ipInfoClient;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="locastClient"></param>
+        /// <param name="ipInfoClient"></param>
         public DmaService(ILogger<LocastService> logger, ILocastClient locastClient, IIpInfoClient ipInfoClient)
         {
             _logger = logger;
@@ -30,22 +45,50 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             _ipInfoClient = ipInfoClient;
         }
 
-        public async Task<DmaLocation> GetDmaLocationAsync(string zipCode = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="zipCode"></param>
+        /// <param name="latitude"></param>
+        /// <param name="longitude"></param>
+        /// <param name="dma"></param>
+        /// <param name="forceLookup"></param>
+        /// <returns></returns>
+        public async Task<DmaLocation> GetDmaLocationAsync(string zipCode = null, double latitude = default, double longitude = default, string dma = null, bool forceLookup = false)
         {
-            if (_currentDmaLocation == null)
+            if (_currentDmaLocation == null || forceLookup)
             {
-                // zip_format = re.compile(r'^[0-9]{5}$')
-                LocastDmaLocationDto locastDmaLocationDto;
+                _logger.LogInformation($"No current DMA set. Performing lookup(s)...");
 
-                if (string.IsNullOrWhiteSpace(zipCode))
+                LocastDmaLocationDto locastDmaLocationDto = null;
+
+                // Explicit DMA first
+                if (locastDmaLocationDto == null && !string.IsNullOrWhiteSpace(dma))
+                {
+                    _logger.LogInformation($"Attemping DMA lookup using a DMA of {dma}");
+                    locastDmaLocationDto = await _locastClient.GetDmaAsync(dma);
+                }
+
+                // Next try lat/long if available
+                if (locastDmaLocationDto == null && latitude > default(double) && longitude > default(double))
+                {
+                    _logger.LogInformation($"Attemping DMA lookup using a Latitude of {latitude} and a Longitude of {longitude}.");
+                    locastDmaLocationDto = await _locastClient.GetDmaByLatLongAsync(latitude, longitude);
+                }
+
+                // Next try zip code if available
+                if (locastDmaLocationDto == null && !string.IsNullOrWhiteSpace(zipCode))
+                {
+                    _logger.LogInformation($"Attemping DMA lookup using a Zip Code of {zipCode}.");
+                    locastDmaLocationDto = await _locastClient.GetDmaByZipCodeAsync(zipCode);
+                }
+
+                // If all else fails, lookup via IP Address
+                if (locastDmaLocationDto == null)
                 {
                     var ipAddress = await _ipInfoClient.GetPublicIpAddressAsync();
-                    _logger.LogInformation($"Public IP Address was: {ipAddress}");
+                    _logger.LogInformation($"Attemping DMA lookup using an IP Address of {ipAddress}.");
                     locastDmaLocationDto = await _locastClient.GetDmaByIpAddressAsync(ipAddress);
-                }
-                else
-                {
-                    locastDmaLocationDto = await _locastClient.GetDmaByZipCodeAsync(zipCode);
                 }
 
                 _currentDmaLocation = new DmaLocation
@@ -60,6 +103,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                     SmallUrl = locastDmaLocationDto.small_url
                 };
 
+                // Announcements will show up when things like Physical Tuner Maintenance or Outages are occurring for a particular DMA.
                 if (locastDmaLocationDto.announcements.Length > 0)
                 {
                     foreach (var announcement in locastDmaLocationDto.announcements)
@@ -79,6 +123,5 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
             return _currentDmaLocation;
         }
-
     }
 }

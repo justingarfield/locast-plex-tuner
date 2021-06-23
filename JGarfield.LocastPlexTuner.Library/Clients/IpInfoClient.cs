@@ -5,17 +5,44 @@ using System.Threading.Tasks;
 
 namespace JGarfield.LocastPlexTuner.Library.Clients
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class IpInfoClient : IIpInfoClient
     {
+        #region Private Members
+
+        /// <summary>
+        /// 
+        /// </summary>
         private static readonly Uri IPINFO_API_BASE_URI = new Uri("https://ipinfo.io/ip");
 
-        private readonly IHttpClientFactory _clientFactory;
+        /// <summary>
+        /// 
+        /// </summary>
+        private readonly HttpClient _httpClient;
 
-        public IpInfoClient(IHttpClientFactory clientFactory)
+        #endregion Private Members
+
+        #region Constructors
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="httpClient"></param>
+        public IpInfoClient(HttpClient httpClient)
         {
-            _clientFactory = clientFactory;
+            _httpClient = httpClient;
         }
 
+        #endregion Constructors
+
+        #region Public Methods
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<string> GetPublicIpAddressAsync()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, IPINFO_API_BASE_URI);
@@ -24,9 +51,7 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             request.Headers.Add("Cache-Control", "no-cache");
             request.Headers.Add("User-Agent", Constants.DEFAULT_HTTPCLIENT_USERAGENT);
 
-            using var client = _clientFactory.CreateClient();
-
-            var response = await client.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -36,5 +61,6 @@ namespace JGarfield.LocastPlexTuner.Library.Clients
             return null;
         }
 
+        #endregion Public Methods
     }
 }

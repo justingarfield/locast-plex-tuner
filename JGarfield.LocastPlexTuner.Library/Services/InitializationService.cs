@@ -120,17 +120,17 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var ffmpegBinaryPath = _configuration.GetSection("FFMPEG_BINARY").Value;
             _applicationContext.FfmpegBinaryPath = ffmpegBinaryPath;
 
-            // Allow user to override Locast DMA ZipCode
+            // Allow user to override how DMA lookup is performed (checked in this order)
+            var dmaOverride = _configuration.GetSection("LOCAST_DMA").Value;
+            double.TryParse(_configuration.GetSection("LOCAST_LATITUDE").Value, out double latitudeOverride);
+            double.TryParse(_configuration.GetSection("LOCAST_LONGITUDE").Value, out double longitudeOverride);
             var zipCodeOverride = _configuration.GetSection("LOCAST_ZIPCODE").Value;
-            var zipCode = string.IsNullOrWhiteSpace(zipCodeOverride) ? null : zipCodeOverride;
 
-            var dmaLocation = await _dmaService.GetDmaLocationAsync(zipCode);
+            var dmaLocation = await _dmaService.GetDmaLocationAsync(zipCodeOverride, latitudeOverride, longitudeOverride, dmaOverride);
             if (dmaLocation == null)
             {
                 throw new LocastPlexTunerDomainException("Unable to determine the Designated Market Area (DMA) for your location. Please visit https://www.locast.org/dma to verify your DMA and set it explicitly using the LOCAST_DMA configuration setting.");
             }
-
-            _applicationContext.CurrentDMA = dmaLocation;
 
             if (!dmaLocation.Active)
             {
@@ -144,10 +144,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             }
 
             _logger.LogInformation("Starting First time Stations refresh...");
-            await _stationsService.RefreshDmaStationsAndChannels(dmaLocation.DMA);
+            await _stationsService.RefreshDmaStationsAndChannels();
 
             _logger.LogInformation("Starting First time EPG refresh...");
-            await _epg2XmlService.GenerateEpgFile(dmaLocation.DMA);
+            await _epg2XmlService.GenerateEpgFile();
         }
     }
 }
