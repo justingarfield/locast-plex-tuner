@@ -57,18 +57,6 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 Directory.CreateDirectory(Constants.APPLICATION_DATA_PATH);
             }
 
-            //===== Does the downloads folder exist? If not, create it
-            if (!Directory.Exists(Constants.APPLICATION_DOWNLOADED_FILES_PATH))
-            {
-                Directory.CreateDirectory(Constants.APPLICATION_DOWNLOADED_FILES_PATH);
-            }
-
-            //===== Does the extracted artifacts folder exist? If not, create it
-            if (!Directory.Exists(Constants.APPLICATION_EXTRACTED_FILES_PATH))
-            {
-                Directory.CreateDirectory(Constants.APPLICATION_EXTRACTED_FILES_PATH);
-            }
-
             //===== Does the parsed artifacts folder exist? If not, create it
             if (!Directory.Exists(Constants.APPLICATION_PARSED_FILES_PATH))
             {
@@ -134,7 +122,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
 
             if (!dmaLocation.Active)
             {
-                throw new LocastPlexTunerDomainException($"The Designated Market Area (DMA) for your location is either not supported by Locast, or they are reporting it as inactive for some reason. Please visit https://www.locast.org/dma to verify your DMA ({dmaLocation.DMA} [{dmaLocation.Name}]).");
+                throw new LocastPlexTunerDomainException($"The Designated Market Area (DMA) for your location is either not supported by Locast, or they are reporting it as inactive for some reason. Please visit https://www.locast.org/dma to verify your DMA ({dmaLocation.Id} [{dmaLocation.Name}]).");
             }
 
             // TODO: Figure out how to support free accounts too
@@ -147,7 +135,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             await _stationsService.RefreshDmaStationsAndChannels();
 
             _logger.LogInformation("Starting First time EPG refresh...");
-            await _epg2XmlService.GenerateEpgFile();
+            await _epg2XmlService.GenerateEpgFileAsync();
         }
     }
 }

@@ -76,7 +76,10 @@ namespace JGarfield.LocastPlexTuner.WebApi
             await _initializationService.VerifyEnvironmentAsync(cancellationToken);
 
             await _initializationService.InitializeEnvironmentAsync();
-            
+
+            _lastEpgRefresh = DateTimeOffset.UtcNow;
+            _lastDmaStationsAndChannelsRefresh = DateTimeOffset.UtcNow;
+
             _logger.LogInformation("LocastPlexTuner is now online.");
             
             _logger.LogDebug($"Leaving {nameof(StartAsync)}");
@@ -98,8 +101,9 @@ namespace JGarfield.LocastPlexTuner.WebApi
                 if (DateTimeOffset.UtcNow.Subtract(_lastEpgRefresh).TotalHours > DEFAULT_EPG_REFRESH_RATE_IN_HOURS)
                 {
                     _logger.LogInformation("Refreshing Electronic Programming Guide (EPG)...");
-
-                    //await _epg2XmlService.GenerateEpgFile(_applicationContext.CurrentDMA.DMA);
+                    
+                    Task.WaitAll(_epg2XmlService.GenerateEpgFileAsync());
+                    
                     _lastEpgRefresh = DateTimeOffset.UtcNow;
 
                     _logger.LogInformation("Electronic Programming Guide (EPG) has been refreshed.");
@@ -109,7 +113,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
                 {
                     _logger.LogInformation("Refreshing DMA Stations and Channels...");
 
-                    //await _stationsService.RefreshDmaStationsAndChannels(_applicationContext.CurrentDMA.DMA);
+                    Task.WaitAll(_stationsService.RefreshDmaStationsAndChannels());
                     _lastDmaStationsAndChannelsRefresh = DateTimeOffset.UtcNow;
 
                     _logger.LogInformation("DMA Stations and Channels have been refreshed.");

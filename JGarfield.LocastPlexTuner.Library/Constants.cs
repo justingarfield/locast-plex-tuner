@@ -19,16 +19,6 @@ namespace JGarfield.LocastPlexTuner.Library
         public static readonly string APPLICATION_DATA_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LocastPlexTuner");
 
         /// <summary>
-        /// Path to any downloaded files that the Application pulls down.
-        /// </summary>
-        public static readonly string APPLICATION_DOWNLOADED_FILES_PATH = Path.Combine(APPLICATION_DATA_PATH, "downloads");
-
-        /// <summary>
-        /// Path to any files that were extracted / unzipped from downloaded files.
-        /// </summary>
-        public static readonly string APPLICATION_EXTRACTED_FILES_PATH = Path.Combine(APPLICATION_DATA_PATH, "extracted");
-
-        /// <summary>
         /// Path to any files that were the output of a data parsing process.
         /// </summary>
         public static readonly string APPLICATION_PARSED_FILES_PATH = Path.Combine(APPLICATION_DATA_PATH, "parsed");

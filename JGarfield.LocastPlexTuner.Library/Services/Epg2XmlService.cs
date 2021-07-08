@@ -30,17 +30,17 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             _dmaService = dmaService;
         }
 
-        public async Task<string> GetEpgFile()
+        public async Task<string> GetEpgFileAsync()
         {
             var dma = await _dmaService.GetDmaLocationAsync();
-            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dma.DMA}_epg.xml");
+            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dma.Id}_epg.xml");
             var xmlDoc = new XmlDocument();
             xmlDoc.Load(filename);
             
             return await Task.FromResult(xmlDoc.OuterXml);
         }
 
-        public async Task GenerateEpgFile()
+        public async Task GenerateEpgFileAsync()
         {
             var dma = await _dmaService.GetDmaLocationAsync();
             var dmaChannels = await _stationsService.GetDmaStationsAndChannels();
@@ -48,7 +48,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var todaysDate = DateTimeOffset.UtcNow;
             var datesToPull = new List<DateTimeOffset> { todaysDate, todaysDate.AddDays(1), todaysDate.AddDays(2) };
 
-            await RemoveStaleCache(todaysDate);
+            await RemoveStaleCacheAsync(todaysDate);
 
             var xmlDoc = CreateNewRootXmlDocument();
 
@@ -58,7 +58,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             var channelsDone = false;
             foreach (var dateToPull in datesToPull)
             {
-                var epgStations = await GetCached(dateToPull, dma.DMA);
+                var epgStations = await GetCachedAsync(dateToPull, dma.Id);
 
                 if (!channelsDone)
                 {
@@ -256,11 +256,11 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 }
             }
 
-            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dma}_epg.xml");
+            var filename = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dma.Id}_epg.xml");
             xmlDoc.Save(filename);
         }
 
-        private async Task<List<LocastChannelDto>> GetCached(DateTimeOffset cacheFileDate, string dma)
+        private async Task<List<LocastChannelDto>> GetCachedAsync(DateTimeOffset cacheFileDate, string dma)
         {
             var dateString = cacheFileDate.ToString("yyyy-MM-dd");
             var cachePath = Path.Combine(Constants.APPLICATION_CACHE_PATH, $"{dateString}.json");
@@ -347,7 +347,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
             return channelElement;
         }
 
-        private async Task RemoveStaleCache(DateTimeOffset todaysDate)
+        private async Task RemoveStaleCacheAsync(DateTimeOffset todaysDate)
         {
             var existingCacheFiles = Directory.GetFiles(Constants.APPLICATION_CACHE_PATH);
 

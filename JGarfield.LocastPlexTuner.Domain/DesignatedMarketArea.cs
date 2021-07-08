@@ -4,24 +4,20 @@ namespace JGarfield.LocastPlexTuner.Domain
 {
     /// <summary>
     /// Designated Market Areas
-    /// See: https://www.thebalancecareers.com/what-is-a-designated-market-area-dma-2315180
+    /// <br />
+    /// See: <see href="https://www.thebalancecareers.com/what-is-a-designated-market-area-dma-2315180"/>
     /// </summary>
-    public class DmaLocation
+    public class DesignatedMarketArea
     {
         /// <summary>
         /// The identifier of the DMA Location.
         /// </summary>
-        public string DMA { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Whether or not the DMA Location is considered active.
         /// </summary>
         public bool Active { get; set; }
-
-        /// <summary>
-        /// Any Announcements related to the DMA Location.
-        /// </summary>
-        public List<DmaLocationAnnouncement> Announcements { get; set; }
 
         /// <summary>
         /// A URI pointing to a 1920 x 1080 sized picture the reprensets the DMA Location.
@@ -56,5 +52,10 @@ namespace JGarfield.LocastPlexTuner.Domain
         /// TODO: (sizes may very? need to confirm)
         /// </summary>
         public string SmallUrl { get; set; }
+
+        /// <summary>
+        /// Any Announcements related to the DMA Location.
+        /// </summary>
+        public List<DmaAnnouncement> Announcements { get; set; }
     }
 }

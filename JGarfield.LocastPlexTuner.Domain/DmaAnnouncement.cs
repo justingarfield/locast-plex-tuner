@@ -1,6 +1,6 @@
 ﻿namespace JGarfield.LocastPlexTuner.Domain
 {
-    public class DmaLocationAnnouncement
+    public class DmaAnnouncement
     {
         /// <summary>
         /// The message text of the announcement.

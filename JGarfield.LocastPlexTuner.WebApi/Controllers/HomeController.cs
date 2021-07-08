@@ -124,7 +124,7 @@ namespace JGarfield.LocastPlexTuner.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> XmlTv()
         {
-            var content = await _epg2XmlService.GetEpgFile();
+            var content = await _epg2XmlService.GetEpgFileAsync();
             return new ContentResult
             {
                 Content = content,

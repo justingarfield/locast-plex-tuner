@@ -11,7 +11,6 @@ This repository is currently a temporary name and the codeset is being heavily r
 ### Known Issues
 
 * Sports currently get considered as Movies. May need to create a new Plex Agent to fix this.
-* Channel Lineup / EPG / Guide only works for a 24-hour period unless you restart the process (currently being fixed)
 * No current way to view Tuner stats (which is tuned to what, how many bytes transferred, etc.)
 * Domain and DTOs still need more cleanup and refactoring
 * Unit Tests would be splendid

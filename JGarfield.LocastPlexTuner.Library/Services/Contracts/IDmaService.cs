@@ -17,6 +17,6 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
         /// <param name="dma"></param>
         /// <param name="forceLookup"></param>
         /// <returns></returns>
-        Task<DmaLocation> GetDmaLocationAsync(string zipCode = null, double latitude = default, double longitude = default, string dma = null, bool forceLookup = false);
+        Task<DesignatedMarketArea> GetDmaLocationAsync(string zipCode = null, double latitude = default, double longitude = default, string dma = null, bool forceLookup = false);
     }
 }

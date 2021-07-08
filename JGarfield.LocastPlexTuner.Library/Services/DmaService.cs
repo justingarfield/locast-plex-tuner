@@ -15,7 +15,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         /// <summary>
         /// The DmaLocation 
         /// </summary>
-        private DmaLocation _currentDmaLocation;
+        private DesignatedMarketArea _currentDmaLocation;
 
         /// <summary>
         /// 
@@ -54,7 +54,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         /// <param name="dma"></param>
         /// <param name="forceLookup"></param>
         /// <returns></returns>
-        public async Task<DmaLocation> GetDmaLocationAsync(string zipCode = null, double latitude = default, double longitude = default, string dma = null, bool forceLookup = false)
+        public async Task<DesignatedMarketArea> GetDmaLocationAsync(string zipCode = null, double latitude = default, double longitude = default, string dma = null, bool forceLookup = false)
         {
             if (_currentDmaLocation == null || forceLookup)
             {
@@ -91,10 +91,10 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                     locastDmaLocationDto = await _locastClient.GetDmaByIpAddressAsync(ipAddress);
                 }
 
-                _currentDmaLocation = new DmaLocation
+                _currentDmaLocation = new DesignatedMarketArea
                 {
                     Active = locastDmaLocationDto.active,
-                    DMA = locastDmaLocationDto.DMA,
+                    Id = locastDmaLocationDto.DMA,
                     LargeUrl = locastDmaLocationDto.large_url,
                     Latitude = locastDmaLocationDto.latitude,
                     Longitude = locastDmaLocationDto.longitude,
@@ -108,7 +108,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 {
                     foreach (var announcement in locastDmaLocationDto.announcements)
                     {
-                        _currentDmaLocation.Announcements.Add(new DmaLocationAnnouncement
+                        _currentDmaLocation.Announcements.Add(new DmaAnnouncement
                         {
                             Title = announcement.title,
                             MessageHtml = announcement.messageHtml,
@@ -118,7 +118,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                     }
                 }
 
-                _logger.LogInformation($"Got location as {_currentDmaLocation.Name} - DMA {_currentDmaLocation.DMA} - Lat\\Lon {_currentDmaLocation.Latitude}\\{_currentDmaLocation.Longitude}.");
+                _logger.LogInformation($"Got location as {_currentDmaLocation.Name} - DMA {_currentDmaLocation.Id} - Lat\\Lon {_currentDmaLocation.Latitude}\\{_currentDmaLocation.Longitude}.");
             }
 
             return _currentDmaLocation;

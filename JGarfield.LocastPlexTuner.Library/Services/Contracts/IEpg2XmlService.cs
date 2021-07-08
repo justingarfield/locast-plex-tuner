@@ -4,8 +4,8 @@ namespace JGarfield.LocastPlexTuner.Library.Services.Contracts
 {
     public interface IEpg2XmlService
     {
-        Task GenerateEpgFile();
+        Task GenerateEpgFileAsync();
 
-        Task<string> GetEpgFile();
+        Task<string> GetEpgFileAsync();
     }
 }

@@ -40,7 +40,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         public async Task GenerateDmaStationsAndChannelsFile()
         {
             var dma = await _dmaService.GetDmaLocationAsync();
-            var epgStations = await _locastService.GetEpgStationsForDmaAsync(dma.DMA);
+            var epgStations = await _locastService.GetEpgStationsForDmaAsync(dma.Id);
 
             foreach (var epgStation in epgStations)
             {
@@ -60,17 +60,18 @@ namespace JGarfield.LocastPlexTuner.Library.Services
                 {
                     epgStationChannel.channel = channel;
                     epgStationChannel.friendlyName = epgStation.callSign.Split()[1];
-                    _cachedEpgStationChannels.Add(epgStation.id, epgStationChannel);
-                    continue;
                 }
 
-                _cachedEpgStationChannels.Add(epgStation.id, epgStationChannel);
+                if (_cachedEpgStationChannels.ContainsKey(epgStation.id))
+                    _cachedEpgStationChannels[epgStation.id] = epgStationChannel;
+                else
+                    _cachedEpgStationChannels.Add(epgStation.id, epgStationChannel);
             }
 
-            var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma}_stations.json");
+            var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma.Id}_stations.json");
             using (var fs = File.Create(filePath))
             {
-                await JsonSerializer.SerializeAsync(fs, _cachedEpgStationChannels);
+                await JsonSerializer.SerializeAsync(fs, _cachedEpgStationChannels, new JsonSerializerOptions { WriteIndented = true });
                 await fs.FlushAsync();
             }
         }
@@ -78,7 +79,7 @@ namespace JGarfield.LocastPlexTuner.Library.Services
         public async Task<Dictionary<long, EpgStationChannel>> GetDmaStationsAndChannels()
         {
             var dma = await _dmaService.GetDmaLocationAsync();
-            var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma}_stations.json");
+            var filePath = Path.Combine(Constants.APPLICATION_PARSED_FILES_PATH, $"dma{dma.Id}_stations.json");
 
             Dictionary<long, EpgStationChannel> result;
             using (var fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
