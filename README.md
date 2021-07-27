@@ -10,6 +10,7 @@ This repository is currently a temporary name and the codeset is being heavily r
 
 ### Known Issues
 
+* `av_interleaved_write_frame(): Broken pipe` and `Error writing trailer of pipe:1: Broken pipe` errors on some streams
 * Sports currently get considered as Movies. May need to create a new Plex Agent to fix this.
 * No current way to view Tuner stats (which is tuned to what, how many bytes transferred, etc.)
 * Domain and DTOs still need more cleanup and refactoring
@@ -40,6 +41,7 @@ I was having issues with that solution working properly, and have no clue how to
 | KESTREL_LISTEN_ADDRESS | use an explicit listener address when starting the WebApi under Kestrel | Coming soon |
 | KESTREL_LISTEN_PORT | use an explicit listener port when starting the WebApi under Kestrel | Coming soon |
 | EPG_DAYS_TO_PULL | How many days of listings to pull at once for the Electronic Program Guide | Coming soon |
+| DEFAULT_DATA_DIRECTORY | override the directory used to store application data (`%localappdata%` by default) | Coming soon |
 
 ## Terminology
 

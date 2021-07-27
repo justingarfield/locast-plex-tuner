@@ -119,7 +119,7 @@ namespace JGarfield.LocastPlexTuner.WebApi
                     _logger.LogInformation("DMA Stations and Channels have been refreshed.");
                 }
 
-                // await Task.Delay(TimeSpan.FromSeconds(30));
+                Task.WaitAll(Task.Delay(TimeSpan.FromSeconds(30)));
             }
 
             _logger.LogDebug($"Leaving {nameof(OnStarted)}");
